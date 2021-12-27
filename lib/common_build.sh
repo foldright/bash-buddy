@@ -38,7 +38,9 @@ JAVA_CMD() {
 #################################################################################
 
 MVN_CMD() {
-    logAndRun "$PROJECT_ROOT_DIR/mvnw" -V --no-transfer-progress "$@"
+    logAndRun "$PROJECT_ROOT_DIR/mvnw" -V --no-transfer-progress \
+    ${DISABLE_GIT_DIRTY_CHECK+ -Dgit.dirty=false} \
+    "$@"
 }
 
 mvnClean() {
