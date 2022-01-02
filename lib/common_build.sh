@@ -38,9 +38,19 @@ JAVA_CMD() {
 #################################################################################
 
 MVN_CMD() {
+    # -P'!release-profile': disable `release-profile` profile in super pom
+    #   maven plugins is full configured in self project pom.
+    #
+    # Super POM
+    #   https://maven.apache.org/ref/3.8.4/maven-model-builder/super-pom.html
+    #
+    # De-activate a maven profile from command line
+    #   https://stackoverflow.com/a/25201551/922688
+
     logAndRun "$PROJECT_ROOT_DIR/mvnw" -V --no-transfer-progress \
-    ${DISABLE_GIT_DIRTY_CHECK+ -Dgit.dirty=false} \
-    "$@"
+        -P'!release-profile' \
+        ${DISABLE_GIT_DIRTY_CHECK+ -Dgit.dirty=false} \
+        "$@"
 }
 
 mvnClean() {
