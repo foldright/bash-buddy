@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # gen a source guard code snippet for a shell lib file.
+# add source guard for shell lib file.
 #
 set -eEuo pipefail
 
@@ -33,4 +34,77 @@ readonly $source_guard_var_name
 EOF
 }
 
-new_source_guard
+new_source_guard_in_tmp_file() {
+    local temp_file
+    temp_file="$(mktemp)"
+    new_source_guard >"$temp_file"
+
+    echo "$temp_file"
+}
+
+_contains_source_guard() {
+    local matched_lines
+    matched_lines="$(sed -rn '/#_ source guard start _#/,/#_ source guard end _#/')"
+
+    [ -n "$matched_lines" ]
+}
+
+_insert_source_guard() {
+    local file="$1"
+
+    local temp_file
+    temp_file="$(new_source_guard_in_tmp_file)"
+    sed -rn -i '1,/^[^#]/p' "$file" | tail -n1 >>"$temp_file"
+
+    sed -rn -i '
+        [],/^[^#]/ {
+            /^[^#]/ {
+                d
+        '"      r $temp_file
+        "'
+            }
+        }
+    ' "$file"
+}
+
+_update_source_guard() {
+    local file="$1"
+
+    local temp_file
+    temp_file="$(new_source_guard_in_tmp_file)"
+
+    sed -rn -i '
+        /#_ source guard start _#/,/#_ source guard end _#/ {
+            /#_ source guard end _#/!d
+            /#_ source guard end _#/ {
+                d
+        '"      r $temp_file
+        "'
+            }
+        }
+    ' "$file"
+}
+
+insert_or_update_source_guard_for_files() {
+    local f
+    for f in "$@"; do
+        [ ! -f "$f" ] && {
+            echo "$f not file, ignored!"
+        } >&2
+        [ ! -w "$f" ] && {
+            echo "$f is not writable, ignored!"
+        } >&2
+
+        if _contains_source_guard "$f"; then
+            _update_source_guard "$f"
+        else
+            _insert_source_guard "$f"
+        fi
+    done
+}
+
+if (($# == 0)); then
+    new_source_guard
+else
+    insert_or_update_source_guard_for_files "$@"
+fi
