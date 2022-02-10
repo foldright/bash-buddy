@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# gen a source guard code snippet for a shell lib file.
+#
+set -eEuo pipefail
+
+p_uuid_gen() {
+    if command -v uuidgen &>/dev/null; then
+        uuidgen
+    else
+        python3 -c 'import uuid; print(str(uuid.uuid4()).upper())'
+    fi
+}
+
+new_source_guard_var_name() {
+    local uuid
+    uuid=$(p_uuid_gen)
+    uuid=${uuid//-/_}
+
+    echo "__source_guard_$uuid"
+}
+
+new_source_guard() {
+    local source_guard_var_name
+    source_guard_var_name="$(new_source_guard_var_name)"
+
+    cat <<EOF
+#_ source guard start _#
+[ -z "\${$source_guard_var_name:+dummy}" ] || return 0
+$source_guard_var_name="\$(dirname "\$(readlink -f "\${BASH_SOURCE[0]}")")"
+readonly $source_guard_var_name
+#_ source guard end _#
+EOF
+}
+
+new_source_guard
