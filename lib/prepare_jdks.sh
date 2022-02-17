@@ -190,9 +190,17 @@ if [ -z "${PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN+defined}" ]; then
     prepare_jdks::load_sdkman
 fi
 
-if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
+case "${PREPARE_JDKS_AUTO_SHOW_LS_JAVA:-}" in
+never) ;;
+always)
     prepare_jdks::ls_java
-fi
+    ;;
+when_sdkman_install | '')
+    if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
+        prepare_jdks::ls_java
+    fi
+    ;;
+esac
 
 if [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
     prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
