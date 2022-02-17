@@ -27,7 +27,8 @@ source "$__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
 #################################################################################
 
 jvb::get_java_version() {
-    "$JAVA_HOME/bin/java" -version 2>&1 | awk -F\" '/ version "/{print $2}'
+    local java_home_path="${1:-$JAVA_HOME}"
+    "$java_home_path/bin/java" -version 2>&1 | awk -F\" '/ version "/{print $2}'
 }
 
 # shellcheck disable=SC2034
