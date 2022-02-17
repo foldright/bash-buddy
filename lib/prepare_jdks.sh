@@ -61,6 +61,37 @@ prepare_jdks::ls_java() {
     cu::loose_run cu::log_then_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
 }
 
+prepare_jdks::_set_available_jdk_versions_of_sdkman() {
+    prepare_jdks::load_sdkman
+
+    local sdk_ls_output
+    sdk_ls_output=$(cu::loose_run sdk ls java | sed -rn '/^-----------/,/^==========/p')
+
+    local line
+
+    # Prefer mapfile or read -a to split command output (or quote to avoid splitting).
+    # https://github.com/koalaman/shellcheck/wiki/SC2207
+    #
+    # outputs multiple lines, each of which should be an element
+    PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN=()
+    while IFS='' read -r line; do
+        PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN+=("$line")
+    done < <(
+        echo "$sdk_ls_output" |
+            awk -F'[ \\t]*\\|[ \\t]*' '/\|/ {print $NF}' |
+            sort -V
+    )
+
+    PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN=()
+    while IFS='' read -r line; do
+        PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN+=("$line")
+    done < <(
+        echo "$sdk_ls_output" |
+            awk -F'[ \\t]*\\|[ \\t]*' '/\|/ && $5 !~ /^local/ {print $NF}' |
+            sort -V
+    )
+}
+
 prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman() {
     local jdk_name_of_sdkman="$1"
     echo "$SDKMAN_CANDIDATES_DIR/java/$jdk_name_of_sdkman"
@@ -186,22 +217,26 @@ prepare_jdks::switch_java_home_to_jdk() {
 #   if `PREPARE_JDKS_INSTALL_BY_SDKMAN` is has values
 ################################################################################
 
-if [ -z "${PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN+defined}" ]; then
+prepare_jdks::__auto_run_when_source() {
+    [ -n "${PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN+defined}" ] && return 0
+
     prepare_jdks::load_sdkman
-fi
 
-case "${PREPARE_JDKS_AUTO_SHOW_LS_JAVA:-}" in
-never) ;;
-always)
-    prepare_jdks::ls_java
-    ;;
-when_sdkman_install | '')
-    if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
+    case "${PREPARE_JDKS_AUTO_SHOW_LS_JAVA:-}" in
+    never) ;;
+    always)
         prepare_jdks::ls_java
-    fi
-    ;;
-esac
+        ;;
+    when_sdkman_install | '')
+        if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
+            prepare_jdks::ls_java
+        fi
+        ;;
+    esac
 
-if [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
-    prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
-fi
+    if [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
+        prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
+    fi
+}
+
+prepare_jdks::__auto_run_when_source
