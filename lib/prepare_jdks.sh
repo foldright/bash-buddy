@@ -136,17 +136,17 @@ prepare_jdks::_prepare_one_jdk() {
 
         printf -v "$java_home_var_name" %s "${jdk_home_path}"
 
-        JDK_HOME_VAR_NAMES=(
-            ${JDK_HOME_VAR_NAMES[@]:+"${JDK_HOME_VAR_NAMES[@]}"}
-            "$java_home_var_name"
-        )
-
         # 2. install jdk by sdkman
         prepare_jdks::install_jdk_by_sdkman "$jdk_name_of_sdkman"
     else
         cu::yellow_echo "$java_home_var_name is already prepared: ${!java_home_var_name}"
         cu::yellow_echo "  so skip install $jdk_name_of_sdkman by sdkman"
     fi
+
+    JDK_HOME_VAR_NAMES=(
+        ${JDK_HOME_VAR_NAMES[@]:+"${JDK_HOME_VAR_NAMES[@]}"}
+        "$java_home_var_name"
+    )
 }
 
 # prepare jdks:
@@ -234,7 +234,7 @@ prepare_jdks::__auto_run_when_source() {
         ;;
     esac
 
-    if [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
+    if [ -z "${PREPARE_JDKS_NO_AUTO_INSTALL_BY_SDKMAN+defined}" ] && [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
         prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
     fi
 }
