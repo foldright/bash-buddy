@@ -101,6 +101,8 @@ trap_error_info::register_show_error_info_handler() {
 }
 
 ################################################################################
+# auto run logic when source
+#
 # auto register_show_error_info_handler when source this script;
 # disable by define `TRAP_ERROR_NO_AUTO_REGISTER` var
 ################################################################################

@@ -112,14 +112,11 @@ jvb::mvn_cmd() {
 }
 
 ################################################################################
-# auto load sdkman.
-#   disable by define `PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN` var
-#
-# auto prepare jdks,
-#   if `PREPARE_JDKS_INSTALL_BY_SDKMAN` is has values
+# auto run logic when source
 ################################################################################
 
-jvb::_set_jvb_vars_if_absent() {
+jvb::__auto_run_when_source() {
+    # set VAR IF absent
     JVB_JAVA_OPT_DEBUG_PORT="${JVB_JAVA_OPT_DEBUG_PORT:-$JVB_JAVA_OPT_DEFAULT_DEBUG_PORT}"
 
     if [ -z "${JVB_JAVA_OPTS[*]:-}" ]; then
@@ -130,4 +127,5 @@ jvb::_set_jvb_vars_if_absent() {
         JVB_MVN_OPTS=("${JVB_DEFAULT_MVN_OPTS[@]}")
     fi
 }
-jvb::_set_jvb_vars_if_absent
+
+jvb::__auto_run_when_source

@@ -216,6 +216,8 @@ prepare_jdks::switch_java_home_to_jdk() {
 }
 
 ################################################################################
+# auto run logic when source
+#
 # auto load sdkman.
 #   disable by define `PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN` var
 #
