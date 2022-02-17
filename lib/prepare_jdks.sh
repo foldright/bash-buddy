@@ -55,29 +55,35 @@ prepare_jdks::load_sdkman() {
     fi
 }
 
+prepare_jdks::_sdkman_ls_java_content() {
+    [ -n "${_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT:-}" ] && echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+
+    _PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT=$(
+        cu::loose_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
+    )
+    echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+}
+
 prepare_jdks::ls_java() {
     prepare_jdks::load_sdkman
 
-    cu::loose_run cu::log_then_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
+    cu::blue_echo "sdk ls java:"
+    prepare_jdks::_sdkman_ls_java_content
 }
 
 prepare_jdks::_set_available_jdk_versions_of_sdkman() {
     prepare_jdks::load_sdkman
-
-    local sdk_ls_output
-    sdk_ls_output=$(cu::loose_run sdk ls java | sed -rn '/^-----------/,/^==========/p')
-
-    local line
 
     # Prefer mapfile or read -a to split command output (or quote to avoid splitting).
     # https://github.com/koalaman/shellcheck/wiki/SC2207
     #
     # outputs multiple lines, each of which should be an element
     PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN=()
+    local line
     while IFS='' read -r line; do
         PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN+=("$line")
     done < <(
-        echo "$sdk_ls_output" |
+        prepare_jdks::_sdkman_ls_java_content |
             awk -F'[ \\t]*\\|[ \\t]*' '/\|/ {print $NF}' |
             sort -V
     )
@@ -86,7 +92,7 @@ prepare_jdks::_set_available_jdk_versions_of_sdkman() {
     while IFS='' read -r line; do
         PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN+=("$line")
     done < <(
-        echo "$sdk_ls_output" |
+        prepare_jdks::_sdkman_ls_java_content |
             awk -F'[ \\t]*\\|[ \\t]*' '/\|/ && $5 !~ /^local/ {print $NF}' |
             sort -V
     )
