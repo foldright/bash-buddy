@@ -68,12 +68,10 @@ jvb::_find_mvn_cmd_path() {
     local -r maven_wrapper_name="mvnw"
 
     # 1. find the mvnw from project root dir
-    if [ -n "${PROJECT_ROOT_DIR:-}" ]; then
-        if [ -e "$PROJECT_ROOT_DIR/$maven_wrapper_name" ]; then
-            JVB_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
-            echo "$JVB_MVN_PATH"
-            return
-        fi
+    if [ -n "${PROJECT_ROOT_DIR:-}" ] && [ -e "$PROJECT_ROOT_DIR/$maven_wrapper_name" ]; then
+        JVB_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
+        echo "$JVB_MVN_PATH"
+        return
     fi
 
     # 2. find mvnw from parent dirs
