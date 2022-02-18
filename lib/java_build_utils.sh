@@ -116,8 +116,11 @@ jvb::mvn_cmd() {
 ################################################################################
 
 jvb::__auto_run_when_source() {
-    # set VAR IF absent
-    JVB_JAVA_OPT_DEBUG_PORT="${JVB_JAVA_OPT_DEBUG_PORT:-$JVB_JAVA_OPT_DEFAULT_DEBUG_PORT}"
+    # set VAR if absent
+
+    if [ -z "${JVB_JAVA_OPT_DEBUG_PORT:-}" ]; then
+        JVB_JAVA_OPT_DEBUG_PORT="$JVB_JAVA_OPT_DEFAULT_DEBUG_PORT"
+    fi
 
     if [ -z "${JVB_JAVA_OPTS[*]:-}" ]; then
         JVB_JAVA_OPTS=("${JVB_DEFAULT_JAVA_OPTS[@]}")
