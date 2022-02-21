@@ -26,7 +26,7 @@ new_source_guard() {
 
     cat <<EOF
 #_ source guard start _#
-[ -z "\${$source_guard_var_name:+dummy}" ] || return 0
+[ -z "\${$source_guard_var_name:+has_value}" ] || return 0
 $source_guard_var_name="\$(dirname "\$(readlink -f "\${BASH_SOURCE[0]}")")"
 readonly $source_guard_var_name
 #_ source guard end _#

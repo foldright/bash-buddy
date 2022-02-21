@@ -9,7 +9,7 @@
 # disable by define `TRAP_ERROR_NO_AUTO_REGISTER` var
 #
 #_ source guard start _#
-[ -z "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+dummy}" ] || return 0
+[ -z "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] || return 0
 __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE
 #_ source guard end _#

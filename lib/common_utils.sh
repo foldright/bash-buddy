@@ -4,7 +4,7 @@
 # use short namespace `cu`, since these functions will be used frequent.
 #
 #_ source guard start _#
-[ -z "${__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA:+dummy}" ] || return 0
+[ -z "${__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA:+has_value}" ] || return 0
 __source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA
 #_ source guard end _#

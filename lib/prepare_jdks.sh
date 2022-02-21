@@ -3,7 +3,7 @@
 # a lib to prepare jdks by sdkman https://sdkman.io/
 #
 #_ source guard start _#
-[ -z "${__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465:+dummy}" ] || return 0
+[ -z "${__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465:+has_value}" ] || return 0
 __source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465
 #_ source guard end _#
