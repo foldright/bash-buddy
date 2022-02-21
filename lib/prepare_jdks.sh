@@ -149,10 +149,7 @@ prepare_jdks::_prepare_one_jdk() {
         cu::yellow_echo "  so skip install $jdk_name_of_sdkman by sdkman"
     fi
 
-    JDK_HOME_VAR_NAMES=(
-        ${JDK_HOME_VAR_NAMES[@]:+"${JDK_HOME_VAR_NAMES[@]}"}
-        "$java_home_var_name"
-    )
+    JDK_HOME_VAR_NAMES+=("$java_home_var_name")
 }
 
 # prepare jdks:
