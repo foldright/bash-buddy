@@ -19,47 +19,69 @@ set -eEu -o pipefail -o functrace
 ################################################################################
 # api functions:
 #   - trap_error_info::register_show_error_info_handler
-#   - trap_error_info::show_stack_trace
+#   - trap_error_info::get_stack_trace
 ################################################################################
 
-# trap_error_info::_get_caller_line_no $level
-# level = 0 means caller stack
+# trap_error_info::get_caller_line_no $level
+# caller stack is level 0.
 #
-# do NOT call this function in sub-shell!
-# e.g. $(trap_error_info::_get_caller_line_no)
-trap_error_info::_get_caller_line_no() {
+# CAUTION: do NOT call this function in sub-shell!
+# e.g. $(trap_error_info::get_caller_line_no)
+#
+#
+# related info:
+#
+# What is the "caller" command?
+#   https://unix.stackexchange.com/questions/19323
+# Bash - Caller - Stack Trace (Builtin command)
+#   https://datacadamia.com/lang/bash/caller
+# Get the name of the caller script in bash script
+#   https://stackoverflow.com/questions/20572934
+#
+trap_error_info::get_caller_line_no() {
     local level="$1"
 
-    # level 0 of caller means self
-    # level + 1, to skip `_get_caller_line_no` self
-    caller $((level + 1)) | {
-        local line_no _
-        read -r line_no _
-        printf "%s" "$line_no"
-    }
+    TRAP_ERROR_INFO_CALLER_LINE_NO=''
+
+    # level 0 of caller means this `get_caller_line_no` self
+    # level + 1, to skip `get_caller_line_no` self
+    local line_no _
+    read -r line_no _ < <(caller $((level + 1)))
+
+    TRAP_ERROR_INFO_CALLER_LINE_NO="$line_no"
 }
 
-# show stack trace with format: func name(source file: line no)
+# show stack trace.
 #
 # usage:
-#   trap_error_info::show_stack_trace <hide level> <indent>
+#   trap_error_info::get_stack_trace <indent> <hide level>
 #
-# about hide level, default contains 2 extra level of implementation:
-#   - trap_error_info::show_stack_trace
-#   - trap_error_info::_get_caller_line_no
-# set hide level to 2, hide this 2 xtra level of implementation.
+# - indent default is empty("").
+# - hide level default is 0.
+#   hide level 0 means show from the caller level stack trace.
 #
-# do NOT call this function in sub-shell!
-trap_error_info::show_stack_trace() {
-    local hide_level="${1:-0}" indent="${2:-}"
+# the format of stack trace:
+#   <func name>(<source file>:<line no>)
+# example:
+#   foo_function(bar.sh:42)
+#
+# CAUTION: do NOT call this function in sub-shell!
+# e.g. $(trap_error_info::get_stack_trace)
+#
+trap_error_info::get_stack_trace() {
+    local indent="${1:-}" hide_level="${2:-0}"
     local func_stack_size="${#FUNCNAME[@]}"
 
-    local i
-    for ((i = hide_level; i < func_stack_size; i++)); do
-        printf "%s%s(%s:" "$indent" "${FUNCNAME[i]}" "${BASH_SOURCE[i]}"
-        trap_error_info::_get_caller_line_no "$((i - 1))"
-        printf ")\n"
+    TRAP_ERROR_INFO_STACK_TRACE=''
+
+    local i stack_trace nl=$'\n'
+    for ((i = ((hide_level + 1)); i < func_stack_size; i++)); do
+        trap_error_info::get_caller_line_no "$((i - 1))"
+
+        stack_trace="${stack_trace}${stack_trace:+$nl}${indent}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
     done
+
+    TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
 }
 
 # official document of `Bash Variables`, e.g.
@@ -68,6 +90,7 @@ trap_error_info::show_stack_trace() {
 #   LINENO
 #   BASH_COMMAND
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
+#
 #
 # related info:
 #
@@ -79,19 +102,23 @@ trap_error_info::show_stack_trace() {
 # https://unix.stackexchange.com/questions/365113/how-to-avoid-error-message-during-the-execution-of-a-bash-script
 # https://shapeshed.com/unix-exit-codes/#how-to-suppress-exit-statuses
 # https://stackoverflow.com/questions/30078281/raise-error-in-a-bash-script/50265513#50265513
+#
 trap_error_info::_show_trapped_error_info() {
-    echo "$@"
-    local exit_code="$1" error_code_line="$2"
+    local exit_code="$1" error_command_line="$2"
 
     {
         echo '================================================================================'
         echo "Trapped error!"
         echo
         echo "Exit status code: $exit_code"
+
         echo "Stack trace:"
-        trap_error_info::show_stack_trace 2 "  "
+        # set hide level 1, hide `_show_trapped_error_info` self stack trace
+        trap_error_info::get_stack_trace "  " 1
+        echo "$TRAP_ERROR_INFO_STACK_TRACE"
+
         echo "Error code line:"
-        echo "  $error_code_line"
+        echo "  $error_command_line"
         echo '================================================================================'
     } >&2
 }
