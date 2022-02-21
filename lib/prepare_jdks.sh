@@ -242,7 +242,7 @@ prepare_jdks::__auto_run_when_source() {
         ;;
     esac
 
-    if [ -z "${PREPARE_JDKS_NO_AUTO_INSTALL_BY_SDKMAN+defined}" ] && [ -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]; then
+    if [[ -z "${PREPARE_JDKS_NO_AUTO_INSTALL_BY_SDKMAN+defined}" && -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]]; then
         prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
     fi
 }
