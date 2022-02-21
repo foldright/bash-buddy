@@ -111,6 +111,19 @@ jvb::mvn_cmd() {
         "$@"
 }
 
+jvb::get_mvn_local_repository_dir() {
+    if [ -z "${JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
+        echo "$JVB_MVN_LOCAL_REPOSITORY_DIR"
+    fi
+
+    JVB_MVN_LOCAL_REPOSITORY_DIR="$(
+        jvb::mvn_cmd --no-transfer-progress help:evaluate -Dexpression=settings.localRepository |
+            grep '^/'
+    )"
+
+    [ -n "${JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || die "Fail to find maven local repository directory"
+}
+
 ################################################################################
 # auto run logic when source
 ################################################################################
