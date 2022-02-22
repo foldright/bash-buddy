@@ -50,7 +50,7 @@ cu::head_line_echo() {
 ################################################################################
 
 cu::is_number_string() {
-    (($# == 1)) || cu::die "${FUNCNAME[0]} need only 1 arguments, actual arguments: $*"
+    (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
     [[ "$1" =~ ^[0-9]+$ ]]
 }
@@ -65,7 +65,7 @@ cu::is_number_string() {
 # cu::version_ge <version1> <version2>
 # version1 is greater than or equal to version2
 cu::version_ge() {
-    (($# == 2)) || cu::die "${FUNCNAME[0]} need only 2 arguments, actual arguments: $*"
+    (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
 
     local ver=$1
     local destVer=$2
@@ -78,7 +78,7 @@ cu::version_ge() {
 # cu::version_lt <version1> <version2>
 # version1 is less than version2
 cu::version_lt() {
-    (($# == 2)) || cu::die "${FUNCNAME[0]} need only 2 arguments, actual arguments: $*"
+    (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
 
     local ver=$1
     local destVer=$2
@@ -93,6 +93,8 @@ cu::version_lt() {
 ################################################################################
 
 cu::loose_run() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     set +eEuo pipefail
     "$@"
     local exit_code=$?
@@ -101,6 +103,8 @@ cu::loose_run() {
 }
 
 cu::log_then_run() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     local simple_mode=false
     [ "$1" = "-s" ] && {
         simple_mode=true
@@ -118,6 +122,8 @@ cu::log_then_run() {
 }
 
 cu::die() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     cu::red_echo "Error: $*" 1>&2
     exit 1
 }

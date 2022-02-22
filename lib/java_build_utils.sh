@@ -27,6 +27,8 @@ source "$__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
 #################################################################################
 
 jvb::get_java_version() {
+    (($# <= 1)) || cu::die "${FUNCNAME[0]} requires at most 1 argument! But provided $#: $*"
+
     local java_home_path="${1:-$JAVA_HOME}"
     "$java_home_path/bin/java" -version 2>&1 | awk -F\" '/ version "/{print $2}'
 }
@@ -42,6 +44,8 @@ readonly JVB_JAVA_OPT_DEFAULT_DEBUG_PORT=5050
 
 # set env variable ENABLE_JAVA_RUN_DEBUG to enable java debug mode
 jvb::java_cmd() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     local debug_opts="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=${JVB_JAVA_OPT_DEBUG_PORT}"
 
     cu::log_then_run "$JAVA_HOME/bin/java" \
@@ -105,6 +109,8 @@ jvb::_find_mvn_cmd_path() {
 }
 
 jvb::mvn_cmd() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     cu::log_then_run "$(jvb::_find_mvn_cmd_path)" \
         "${JVB_MVN_OPTS[@]}" \
         ${DISABLE_GIT_DIRTY_CHECK+-Dgit.dirty=false} \
@@ -112,6 +118,8 @@ jvb::mvn_cmd() {
 }
 
 jvb::get_mvn_local_repository_dir() {
+    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
     if [ -z "${JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
         echo "$JVB_MVN_LOCAL_REPOSITORY_DIR"
     fi

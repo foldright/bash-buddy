@@ -24,7 +24,10 @@ source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
 #   - prepare_jdks::install_sdkman
 ################################################################################
 
+# shellcheck disable=SC2120
 prepare_jdks::install_sdkman() {
+    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
     PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN="${PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN:-false}"
 
     # install sdkman if not installed yet
@@ -45,7 +48,10 @@ prepare_jdks::install_sdkman() {
 
 # load sdkman.
 # install sdkman if not installed yet.
+# shellcheck disable=SC2120
 prepare_jdks::load_sdkman() {
+    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
     prepare_jdks::install_sdkman
 
     # load sdkman if not loaded yet
@@ -64,7 +70,10 @@ prepare_jdks::_sdkman_ls_java_content() {
     echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
 }
 
+# shellcheck disable=SC2120
 prepare_jdks::ls_java() {
+    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
     prepare_jdks::load_sdkman
 
     cu::blue_echo "sdk ls java:"
@@ -105,6 +114,8 @@ prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman() {
 
 # install the jdk by sdkman if not installed yet.
 prepare_jdks::install_jdk_by_sdkman() {
+    (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
     prepare_jdks::load_sdkman
 
     local jdk_name_of_sdkman="$1"
@@ -169,6 +180,8 @@ prepare_jdks::_prepare_one_jdk() {
 #      JDK_HOME_VAR_NAMES=($JDK7_HOME $JDK11_HOME)
 #   3. install jdk by sdkman
 prepare_jdks::prepare_jdks() {
+    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
     JDK_HOME_VAR_NAMES=()
 
     local jdk_name_of_sdkman
@@ -187,7 +200,7 @@ prepare_jdks::prepare_jdks() {
 #   prepare_jdks::switch_java_home_to_jdk 11
 #   prepare_jdks::switch_java_home_to_jdk /path/to/java_home
 prepare_jdks::switch_java_home_to_jdk() {
-    [ $# == 1 ] || cu::die "${FUNCNAME[0]} need 1 argument! But provided: $*"
+    [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
     local -r switch_target="$1"
     [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"

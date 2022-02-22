@@ -39,7 +39,6 @@ jvb::mvn_cmd clean install
 
 ########################################
 # test multi-version java
-# shellcheck disable=SC2154
 ########################################
 for jhome_var_name in "${JDK_HOME_VAR_NAMES[@]}"; do
     # already tested by above `mvn install`

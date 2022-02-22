@@ -23,7 +23,8 @@ set -eEu -o pipefail -o functrace
 ################################################################################
 
 # trap_error_info::get_caller_line_no $level
-# caller stack is level 0.
+#
+# level 0 is caller of `trap_error_info::get_caller_line_no`.
 #
 # CAUTION: do NOT call this function in sub-shell!
 # e.g. $(trap_error_info::get_caller_line_no)
