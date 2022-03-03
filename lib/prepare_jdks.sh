@@ -26,141 +26,141 @@ source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
 
 # shellcheck disable=SC2120
 prepare_jdks::install_sdkman() {
-    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-    PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN="${PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN:-false}"
+  PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN="${PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN:-false}"
 
-    # install sdkman if not installed yet
-    if [ ! -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
-        [ -d "$HOME/.sdkman" ] && rm -rf "$HOME/.sdkman"
+  # install sdkman if not installed yet
+  if [ ! -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+    [ -d "$HOME/.sdkman" ] && rm -rf "$HOME/.sdkman"
 
-        curl -s get.sdkman.io | bash || cu::die "fail to install sdkman"
-        PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN=true
+    curl -s get.sdkman.io | bash || cu::die "fail to install sdkman"
+    PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN=true
 
-        # FIXME: hard-coded config logic
-        {
-            echo sdkman_auto_answer=true
-            echo sdkman_auto_selfupdate=false
-            echo sdkman_disable_auto_upgrade_check=true
-        } >>"$HOME/.sdkman/etc/config"
-    fi
+    # FIXME: hard-coded config logic
+    {
+      echo sdkman_auto_answer=true
+      echo sdkman_auto_selfupdate=false
+      echo sdkman_disable_auto_upgrade_check=true
+    } >>"$HOME/.sdkman/etc/config"
+  fi
 }
 
 # load sdkman.
 # install sdkman if not installed yet.
 # shellcheck disable=SC2120
 prepare_jdks::load_sdkman() {
-    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-    prepare_jdks::install_sdkman
+  prepare_jdks::install_sdkman
 
-    # load sdkman if not loaded yet
-    if ! command -v sdk &>/dev/null; then
-        # shellcheck disable=SC1090
-        cu::loose_run source "$HOME/.sdkman/bin/sdkman-init.sh"
-    fi
+  # load sdkman if not loaded yet
+  if ! command -v sdk &>/dev/null; then
+    # shellcheck disable=SC1090
+    cu::loose_run source "$HOME/.sdkman/bin/sdkman-init.sh"
+  fi
 }
 
 prepare_jdks::_sdkman_ls_java_content() {
-    [ -n "${_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT:-}" ] && echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+  [ -n "${_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT:-}" ] && echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
 
-    _PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT=$(
-        cu::loose_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
-    )
-    echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+  _PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT=$(
+    cu::loose_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
+  )
+  echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
 }
 
 # shellcheck disable=SC2120
 prepare_jdks::ls_java() {
-    (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-    prepare_jdks::load_sdkman
+  prepare_jdks::load_sdkman
 
-    cu::blue_echo "sdk ls java:"
-    prepare_jdks::_sdkman_ls_java_content
+  cu::blue_echo "sdk ls java:"
+  prepare_jdks::_sdkman_ls_java_content
 }
 
 prepare_jdks::_set_available_jdk_versions_of_sdkman() {
-    prepare_jdks::load_sdkman
+  prepare_jdks::load_sdkman
 
-    # Prefer mapfile or read -a to split command output (or quote to avoid splitting).
-    # https://github.com/koalaman/shellcheck/wiki/SC2207
-    #
-    # outputs multiple lines, each of which should be an element
-    PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN=()
-    local line
-    while IFS='' read -r line; do
-        PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN+=("$line")
-    done < <(
-        prepare_jdks::_sdkman_ls_java_content |
-            awk -F'[ \\t]*\\|[ \\t]*' '/\|/ {print $NF}' |
-            sort -V
-    )
+  # Prefer mapfile or read -a to split command output (or quote to avoid splitting).
+  # https://github.com/koalaman/shellcheck/wiki/SC2207
+  #
+  # outputs multiple lines, each of which should be an element
+  PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN=()
+  local line
+  while IFS='' read -r line; do
+    PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN+=("$line")
+  done < <(
+    prepare_jdks::_sdkman_ls_java_content |
+      awk -F'[ \\t]*\\|[ \\t]*' '/\|/ {print $NF}' |
+      sort -V
+  )
 
-    PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN=()
-    while IFS='' read -r line; do
-        PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN+=("$line")
-    done < <(
-        prepare_jdks::_sdkman_ls_java_content |
-            awk -F'[ \\t]*\\|[ \\t]*' '/\|/ && $5 !~ /^local/ {print $NF}' |
-            sort -V
-    )
+  PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN=()
+  while IFS='' read -r line; do
+    PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN+=("$line")
+  done < <(
+    prepare_jdks::_sdkman_ls_java_content |
+      awk -F'[ \\t]*\\|[ \\t]*' '/\|/ && $5 !~ /^local/ {print $NF}' |
+      sort -V
+  )
 }
 
 prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman() {
-    local jdk_name_of_sdkman="$1"
-    echo "$SDKMAN_CANDIDATES_DIR/java/$jdk_name_of_sdkman"
+  local jdk_name_of_sdkman="$1"
+  echo "$SDKMAN_CANDIDATES_DIR/java/$jdk_name_of_sdkman"
 }
 
 # install the jdk by sdkman if not installed yet.
 prepare_jdks::install_jdk_by_sdkman() {
-    (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
-    prepare_jdks::load_sdkman
+  prepare_jdks::load_sdkman
 
-    local jdk_name_of_sdkman="$1"
-    local jdk_home_path
-    jdk_home_path="$(
-        prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman"
-    )"
+  local jdk_name_of_sdkman="$1"
+  local jdk_home_path
+  jdk_home_path="$(
+    prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman"
+  )"
 
-    # install jdk by sdkman
-    if [ ! -d "$jdk_home_path" ]; then
-        cu::loose_run cu::log_then_run sdk install java "$jdk_name_of_sdkman" ||
-            cu::die "fail to install jdk $jdk_name_of_sdkman by sdkman"
-    fi
+  # install jdk by sdkman
+  if [ ! -d "$jdk_home_path" ]; then
+    cu::loose_run cu::log_then_run sdk install java "$jdk_name_of_sdkman" ||
+      cu::die "fail to install jdk $jdk_name_of_sdkman by sdkman"
+  fi
 }
 
 prepare_jdks::_prepare_one_jdk() {
-    local jdk_name_of_sdkman="$1"
-    local jdk_major_version="${jdk_name_of_sdkman//.*/}"
+  local jdk_name_of_sdkman="$1"
+  local jdk_major_version="${jdk_name_of_sdkman//.*/}"
 
-    # java_home_var_name like JDK7_HOME, JDK11_HOME
-    local java_home_var_name="JDK${jdk_major_version}_HOME"
+  # java_home_var_name like JDK7_HOME, JDK11_HOME
+  local java_home_var_name="JDK${jdk_major_version}_HOME"
 
-    if [ -z "${!java_home_var_name:-}" ]; then
-        # 1. prepare jdk home global var
-        #
-        # Dynamic variable names in Bash
-        # https://stackoverflow.com/a/55331060/922688
-        #
-        # read value of dynamic variable by:
-        #   "${!var_which_value_is_var_name}"
-        # assign value to of dynamic variable by:
-        #   printf -v "$var_which_value_is_var_name" %s value
-        local jdk_home_path
-        jdk_home_path="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman")"
+  if [ -z "${!java_home_var_name:-}" ]; then
+    # 1. prepare jdk home global var
+    #
+    # Dynamic variable names in Bash
+    # https://stackoverflow.com/a/55331060/922688
+    #
+    # read value of dynamic variable by:
+    #   "${!var_which_value_is_var_name}"
+    # assign value to of dynamic variable by:
+    #   printf -v "$var_which_value_is_var_name" %s value
+    local jdk_home_path
+    jdk_home_path="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman")"
 
-        printf -v "$java_home_var_name" %s "${jdk_home_path}"
+    printf -v "$java_home_var_name" %s "${jdk_home_path}"
 
-        # 2. install jdk by sdkman
-        prepare_jdks::install_jdk_by_sdkman "$jdk_name_of_sdkman"
-    else
-        cu::yellow_echo "$java_home_var_name is already prepared: ${!java_home_var_name}"
-        cu::yellow_echo "  so skip install $jdk_name_of_sdkman by sdkman"
-    fi
+    # 2. install jdk by sdkman
+    prepare_jdks::install_jdk_by_sdkman "$jdk_name_of_sdkman"
+  else
+    cu::yellow_echo "$java_home_var_name is already prepared: ${!java_home_var_name}"
+    cu::yellow_echo "  so skip install $jdk_name_of_sdkman by sdkman"
+  fi
 
-    JDK_HOME_VAR_NAMES+=("$java_home_var_name")
+  JDK_HOME_VAR_NAMES+=("$java_home_var_name")
 }
 
 # prepare jdks:
@@ -180,49 +180,49 @@ prepare_jdks::_prepare_one_jdk() {
 #      JDK_HOME_VAR_NAMES=($JDK7_HOME $JDK11_HOME)
 #   3. install jdk by sdkman
 prepare_jdks::prepare_jdks() {
-    (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
-    JDK_HOME_VAR_NAMES=()
+  JDK_HOME_VAR_NAMES=()
 
-    local jdk_name_of_sdkman
-    for jdk_name_of_sdkman in "$@"; do
-        prepare_jdks::_prepare_one_jdk "$jdk_name_of_sdkman"
-    done
+  local jdk_name_of_sdkman
+  for jdk_name_of_sdkman in "$@"; do
+    prepare_jdks::_prepare_one_jdk "$jdk_name_of_sdkman"
+  done
 
-    cu::blue_echo "prepared jdks:"
-    local java_home_var_name
-    for java_home_var_name in "${JDK_HOME_VAR_NAMES[@]}"; do
-        cu::blue_echo "$java_home_var_name: ${!java_home_var_name}"
-    done
+  cu::blue_echo "prepared jdks:"
+  local java_home_var_name
+  for java_home_var_name in "${JDK_HOME_VAR_NAMES[@]}"; do
+    cu::blue_echo "$java_home_var_name: ${!java_home_var_name}"
+  done
 }
 
 # usage:
 #   prepare_jdks::switch_java_home_to_jdk 11
 #   prepare_jdks::switch_java_home_to_jdk /path/to/java_home
 prepare_jdks::switch_java_home_to_jdk() {
-    [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+  [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
-    local -r switch_target="$1"
-    [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"
+  local -r switch_target="$1"
+  [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"
 
-    if cu::is_number_string "$switch_target"; then
-        # set by java version, e.g.
-        #   prepare_jdks::switch_java_home_to_jdk 11
-        local java_home_var_name="JDK${switch_target}_HOME"
-        export JAVA_HOME="${!java_home_var_name:-}"
+  if cu::is_number_string "$switch_target"; then
+    # set by java version, e.g.
+    #   prepare_jdks::switch_java_home_to_jdk 11
+    local java_home_var_name="JDK${switch_target}_HOME"
+    export JAVA_HOME="${!java_home_var_name:-}"
 
-        [ -n "$JAVA_HOME" ] || cu::die "JAVA_HOME of java version $switch_target($java_home_var_name) is unset or blank: $JAVA_HOME"
-    else
-        # set by java home path
-        export JAVA_HOME="$switch_target"
-    fi
+    [ -n "$JAVA_HOME" ] || cu::die "JAVA_HOME of java version $switch_target($java_home_var_name) is unset or blank: $JAVA_HOME"
+  else
+    # set by java home path
+    export JAVA_HOME="$switch_target"
+  fi
 
-    [ -e "$JAVA_HOME" ] || cu::die "jdk $switch_target NOT existed: $JAVA_HOME"
-    [ -d "$JAVA_HOME" ] || cu::die "jdk $switch_target is NOT directory: $JAVA_HOME"
+  [ -e "$JAVA_HOME" ] || cu::die "jdk $switch_target NOT existed: $JAVA_HOME"
+  [ -d "$JAVA_HOME" ] || cu::die "jdk $switch_target is NOT directory: $JAVA_HOME"
 
-    local java_cmd="$JAVA_HOME/bin/java"
-    [ -f "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT found!"
-    [ -x "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT executable!"
+  local java_cmd="$JAVA_HOME/bin/java"
+  [ -f "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT found!"
+  [ -x "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT executable!"
 }
 
 ################################################################################
@@ -236,25 +236,25 @@ prepare_jdks::switch_java_home_to_jdk() {
 ################################################################################
 
 prepare_jdks::__auto_run_when_source() {
-    [ -n "${PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN+defined}" ] && return 0
+  [ -n "${PREPARE_JDKS_NO_AUTO_LOAD_SDKMAN+defined}" ] && return 0
 
-    prepare_jdks::load_sdkman
+  prepare_jdks::load_sdkman
 
-    case "${PREPARE_JDKS_AUTO_SHOW_LS_JAVA:-}" in
-    never) ;;
-    always)
-        prepare_jdks::ls_java
-        ;;
-    when_sdkman_install | '')
-        if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
-            prepare_jdks::ls_java
-        fi
-        ;;
-    esac
-
-    if [[ -z "${PREPARE_JDKS_NO_AUTO_INSTALL_BY_SDKMAN+defined}" && -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]]; then
-        prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
+  case "${PREPARE_JDKS_AUTO_SHOW_LS_JAVA:-}" in
+  never) ;;
+  always)
+    prepare_jdks::ls_java
+    ;;
+  when_sdkman_install | '')
+    if "$PREPARE_JDKS_IS_THIS_TIME_INSTALLED_SDKMAN"; then
+      prepare_jdks::ls_java
     fi
+    ;;
+  esac
+
+  if [[ -z "${PREPARE_JDKS_NO_AUTO_INSTALL_BY_SDKMAN+defined}" && -n "${PREPARE_JDKS_INSTALL_BY_SDKMAN:+has_values}" ]]; then
+    prepare_jdks::prepare_jdks "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"
+  fi
 }
 
 prepare_jdks::__auto_run_when_source

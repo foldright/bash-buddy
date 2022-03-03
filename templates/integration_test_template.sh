@@ -11,9 +11,9 @@ source FIXME/lib/common_utils.sh
 
 # shellcheck disable=SC2034
 PREPARE_JDKS_INSTALL_BY_SDKMAN=(
-    8.322.06.1-amzn
-    11.0.14-ms
-    17.0.2.8.1-amzn
+  8.322.06.1-amzn
+  11.0.14-ms
+  17.0.2.8.1-amzn
 )
 
 source FIXME/lib/prepare_jdks.sh
@@ -41,12 +41,12 @@ jvb::mvn_cmd clean install
 # test multi-version java
 ########################################
 for jhome_var_name in "${JDK_HOME_VAR_NAMES[@]}"; do
-    # already tested by above `mvn install`
-    [ "JDK${default_build_jdk_version}_HOME" = "$jhome_var_name" ] && continue
+  # already tested by above `mvn install`
+  [ "JDK${default_build_jdk_version}_HOME" = "$jhome_var_name" ] && continue
 
-    prepare_jdks::switch_java_home_to_jdk "${!jhome_var_name}"
+  prepare_jdks::switch_java_home_to_jdk "${!jhome_var_name}"
 
-    cu::head_line_echo "test with Java: $JAVA_HOME"
-    # just test without build
-    jvb::mvn_cmd surefire:test
+  cu::head_line_echo "test with Java: $JAVA_HOME"
+  # just test without build
+  jvb::mvn_cmd surefire:test
 done

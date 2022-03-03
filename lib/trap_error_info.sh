@@ -40,16 +40,16 @@ set -eEu -o pipefail -o functrace
 #   https://stackoverflow.com/questions/20572934
 #
 trap_error_info::get_caller_line_no() {
-    local level="$1"
+  local level="$1"
 
-    TRAP_ERROR_INFO_CALLER_LINE_NO=''
+  TRAP_ERROR_INFO_CALLER_LINE_NO=''
 
-    # level 0 of caller means this `get_caller_line_no` self
-    # level + 1, to skip `get_caller_line_no` self
-    local line_no _
-    read -r line_no _ < <(caller $((level + 1)))
+  # level 0 of caller means this `get_caller_line_no` self
+  # level + 1, to skip `get_caller_line_no` self
+  local line_no _
+  read -r line_no _ < <(caller $((level + 1)))
 
-    TRAP_ERROR_INFO_CALLER_LINE_NO="$line_no"
+  TRAP_ERROR_INFO_CALLER_LINE_NO="$line_no"
 }
 
 # show stack trace.
@@ -70,19 +70,19 @@ trap_error_info::get_caller_line_no() {
 # e.g. $(trap_error_info::get_stack_trace)
 #
 trap_error_info::get_stack_trace() {
-    local indent="${1:-}" hide_level="${2:-0}"
-    local func_stack_size="${#FUNCNAME[@]}"
+  local indent="${1:-}" hide_level="${2:-0}"
+  local func_stack_size="${#FUNCNAME[@]}"
 
-    TRAP_ERROR_INFO_STACK_TRACE=''
+  TRAP_ERROR_INFO_STACK_TRACE=''
 
-    local i stack_trace nl=$'\n'
-    for ((i = ((hide_level + 1)); i < func_stack_size; i++)); do
-        trap_error_info::get_caller_line_no "$((i - 1))"
+  local i stack_trace nl=$'\n'
+  for ((i = ((hide_level + 1)); i < func_stack_size; i++)); do
+    trap_error_info::get_caller_line_no "$((i - 1))"
 
-        stack_trace="${stack_trace}${stack_trace:+$nl}${indent}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
-    done
+    stack_trace="${stack_trace}${stack_trace:+$nl}${indent}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
+  done
 
-    TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
+  TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
 }
 
 # official document of `Bash Variables`, e.g.
@@ -105,27 +105,27 @@ trap_error_info::get_stack_trace() {
 # https://stackoverflow.com/questions/30078281/raise-error-in-a-bash-script/50265513#50265513
 #
 trap_error_info::_show_trapped_error_info() {
-    local exit_code="$1" error_command_line="$2"
+  local exit_code="$1" error_command_line="$2"
 
-    {
-        echo '================================================================================'
-        echo "Trapped error!"
-        echo
-        echo "Exit status code: $exit_code"
+  {
+    echo '================================================================================'
+    echo "Trapped error!"
+    echo
+    echo "Exit status code: $exit_code"
 
-        echo "Stack trace:"
-        # set hide level 1, hide `_show_trapped_error_info` self stack trace
-        trap_error_info::get_stack_trace "  " 1
-        echo "$TRAP_ERROR_INFO_STACK_TRACE"
+    echo "Stack trace:"
+    # set hide level 1, hide `_show_trapped_error_info` self stack trace
+    trap_error_info::get_stack_trace "  " 1
+    echo "$TRAP_ERROR_INFO_STACK_TRACE"
 
-        echo "Error code line:"
-        echo "  $error_command_line"
-        echo '================================================================================'
-    } >&2
+    echo "Error code line:"
+    echo "  $error_command_line"
+    echo '================================================================================'
+  } >&2
 }
 
 trap_error_info::register_show_error_info_handler() {
-    trap 'trap_error_info::_show_trapped_error_info $? "$BASH_COMMAND"' ERR
+  trap 'trap_error_info::_show_trapped_error_info $? "$BASH_COMMAND"' ERR
 }
 
 ################################################################################
@@ -136,5 +136,5 @@ trap_error_info::register_show_error_info_handler() {
 ################################################################################
 
 if [ -z "${TRAP_ERROR_NO_AUTO_REGISTER+defined}" ]; then
-    trap_error_info::register_show_error_info_handler
+  trap_error_info::register_show_error_info_handler
 fi
