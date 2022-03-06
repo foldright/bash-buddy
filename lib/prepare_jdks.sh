@@ -16,14 +16,17 @@ source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
 ################################################################################
 # api functions:
 #
+#   - prepare_jdks::switch_to_jdk
+#
 #   - prepare_jdks::prepare_jdks
-#   - prepare_jdks::switch_java_home_to_jdk
 #
 #   - prepare_jdks::install_jdk_by_sdkman
 #   - prepare_jdks::load_sdkman
 #   - prepare_jdks::install_sdkman
 ################################################################################
 
+# install sdkman.
+#
 # shellcheck disable=SC2120
 prepare_jdks::install_sdkman() {
   (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
@@ -47,7 +50,9 @@ prepare_jdks::install_sdkman() {
 }
 
 # load sdkman.
+#
 # install sdkman if not installed yet.
+#
 # shellcheck disable=SC2120
 prepare_jdks::load_sdkman() {
   (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
@@ -61,12 +66,13 @@ prepare_jdks::load_sdkman() {
   fi
 }
 
-prepare_jdks::_sdkman_ls_java_content() {
-  [ -n "${_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT:-}" ] && echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+prepare_jdks::_get_sdkman_ls_java_content() {
+  [ -n "${_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT:-}" ] && {
+    echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
+    return
+  }
 
-  _PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT=$(
-    cu::loose_run sdk ls java | sed -n '/^ Vendor/,/^===========/p'
-  )
+  _PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT="$(cu::loose_run sdk ls java | sed -n '/^ Vendor/,/^===========/p')"
   echo "$_PREPARE_JDKS_SDKMAN_LS_JAVA_CONTENT"
 }
 
@@ -77,49 +83,82 @@ prepare_jdks::ls_java() {
   prepare_jdks::load_sdkman
 
   cu::blue_echo "sdk ls java:"
-  prepare_jdks::_sdkman_ls_java_content
+  prepare_jdks::_get_sdkman_ls_java_content
 }
 
-prepare_jdks::_set_available_jdk_versions_of_sdkman() {
-  prepare_jdks::load_sdkman
+# shellcheck disable=SC2120
+prepare_jdks::get_available_java_versions_of_sdkman() {
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-  # Prefer mapfile or read -a to split command output (or quote to avoid splitting).
-  # https://github.com/koalaman/shellcheck/wiki/SC2207
-  #
-  # outputs multiple lines, each of which should be an element
-  PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN=()
-  local line
-  while IFS='' read -r line; do
-    PREPARE_JDKS_AVAILABLE_JDK_VERSIONS_OF_SDKMAN+=("$line")
-  done < <(
-    prepare_jdks::_sdkman_ls_java_content |
-      awk -F'[ \\t]*\\|[ \\t]*' '/\|/ {print $NF}' |
-      sort -V
-  )
+  [ -n "${_PREPARE_JDKS_AVAILABLE_JAVA_VERSIONS_OF_SDKMAN:-}" ] && {
+    echo "$_PREPARE_JDKS_AVAILABLE_JAVA_VERSIONS_OF_SDKMAN"
+    return
+  }
 
-  PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN=()
-  while IFS='' read -r line; do
-    PREPARE_JDKS_AVAILABLE_REMOTE_JDK_VERSIONS_OF_SDKMAN+=("$line")
-  done < <(
-    prepare_jdks::_sdkman_ls_java_content |
-      awk -F'[ \\t]*\\|[ \\t]*' '/\|/ && $5 !~ /^local/ {print $NF}' |
-      sort -V
-  )
+  prepare_jdks::load_sdkman >&2
+
+  _PREPARE_JDKS_AVAILABLE_JAVA_VERSIONS_OF_SDKMAN="$(
+    prepare_jdks::_get_sdkman_ls_java_content |
+      awk -F'[ \\t]*\\|[ \\t]*' 'NR > 2 && /\|/ {print $NF}' |
+      sort -Vr
+  )"
+
+  echo "$_PREPARE_JDKS_AVAILABLE_JAVA_VERSIONS_OF_SDKMAN"
+}
+
+# shellcheck disable=SC2120
+prepare_jdks::get_available_local_java_versions_of_sdkman() {
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
+  [ -n "${_PREPARE_JDKS_AVAILABLE_LOCAL_JAVA_VERSIONS_OF_SDKMAN:-}" ] && {
+    echo "$_PREPARE_JDKS_AVAILABLE_LOCAL_JAVA_VERSIONS_OF_SDKMAN"
+    return
+  }
+
+  prepare_jdks::load_sdkman >&2
+
+  _PREPARE_JDKS_AVAILABLE_LOCAL_JAVA_VERSIONS_OF_SDKMAN="$(
+    printf '%s\n' "$SDKMAN_CANDIDATES_DIR/java"/*/ |
+      awk -F/ '$(NF-1) !~ /^current$/ {print $(NF-1)}' |
+      sort -Vr
+  )"
+
+  echo "$_PREPARE_JDKS_AVAILABLE_LOCAL_JAVA_VERSIONS_OF_SDKMAN"
+}
+
+# shellcheck disable=SC2120
+prepare_jdks::get_available_remote_java_versions_of_sdkman() {
+  (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
+
+  [ -n "${_PREPARE_JDKS_AVAILABLE_REMOTE_JAVA_VERSIONS_OF_SDKMAN:-}" ] && {
+    echo "$_PREPARE_JDKS_AVAILABLE_REMOTE_JAVA_VERSIONS_OF_SDKMAN"
+    return
+  }
+
+  prepare_jdks::load_sdkman >&2
+
+  _PREPARE_JDKS_AVAILABLE_REMOTE_JAVA_VERSIONS_OF_SDKMAN="$(
+    prepare_jdks::_get_sdkman_ls_java_content |
+      awk -F'[ \\t]*\\|[ \\t]*' 'NR > 2 && /\|/ && $5 !~ /^local / {print $NF}' |
+      sort -Vr
+  )"
+
+  echo "$_PREPARE_JDKS_AVAILABLE_REMOTE_JAVA_VERSIONS_OF_SDKMAN"
 }
 
 prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman() {
   local jdk_name_of_sdkman="$1"
-  echo "$SDKMAN_CANDIDATES_DIR/java/$jdk_name_of_sdkman"
+  local jdk_home_path="$SDKMAN_CANDIDATES_DIR/java/$jdk_name_of_sdkman"
+  echo "$jdk_home_path"
 }
 
-# install the jdk by sdkman if not installed yet.
+# install the jdk by sdkman.
 prepare_jdks::install_jdk_by_sdkman() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   prepare_jdks::load_sdkman
 
-  local jdk_name_of_sdkman="$1"
-  local jdk_home_path
+  local jdk_name_of_sdkman="$1" jdk_home_path
   jdk_home_path="$(
     prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman"
   )"
@@ -131,98 +170,110 @@ prepare_jdks::install_jdk_by_sdkman() {
   fi
 }
 
-prepare_jdks::_prepare_one_jdk() {
-  local jdk_name_of_sdkman="$1"
-  local jdk_major_version="${jdk_name_of_sdkman//.*/}"
+# shellcheck disable=SC2120
+prepare_jdks::_get_latest_java_version() {
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
-  # java_home_var_name like JDK7_HOME, JDK11_HOME
-  local java_home_var_name="JDK${jdk_major_version}_HOME"
+  local version_pattern="$1" input result
+  input=$(cat)
 
-  if [ -z "${!java_home_var_name:-}" ]; then
-    # 1. prepare jdk home global var
-    #
-    # Dynamic variable names in Bash
-    # https://stackoverflow.com/a/55331060/922688
-    #
-    # read value of dynamic variable by:
-    #   "${!var_which_value_is_var_name}"
-    # assign value to of dynamic variable by:
-    #   printf -v "$var_which_value_is_var_name" %s value
-    local jdk_home_path
-    jdk_home_path="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman")"
-
-    printf -v "$java_home_var_name" %s "${jdk_home_path}"
-
-    # 2. install jdk by sdkman
-    prepare_jdks::install_jdk_by_sdkman "$jdk_name_of_sdkman"
-  else
-    cu::yellow_echo "$java_home_var_name is already prepared: ${!java_home_var_name}"
-    cu::yellow_echo "  so skip install $jdk_name_of_sdkman by sdkman"
+  # 1. first find non-ea and non-fx versions
+  result="$(echo "$input" | grep -vE '\.ea\.|\.fx-' | cu::get_latest_version "$version_pattern")"
+  if [ -n "$result" ]; then
+    echo "$result"
+    return 0
   fi
 
-  JDK_HOME_VAR_NAMES+=("$java_home_var_name")
+  # 2. then find versions
+  echo "$input" | cu::get_latest_version "$version_pattern"
 }
 
-# prepare jdks:
-#
-# usage:
-#   prepare_jdks::prepare_jdks <jdk_name_of_sdkman>...
-#
-# example:
-#   prepare_jdks::prepare_jdks 11.0.14-ms
-#   prepare_jdks::prepare_jdks 11.0.14-ms 17.0.2-zulu
-#
-# do the below works:
-#   1. prepare jdk home global var, like
-#       JDK7_HOME=/path/to/jdk7/home
-#       JDK11_HOME=/path/to/jdk11/home
-#   2. prepare jdk home global array var `JDK_HOME_VAR_NAMES`, like
-#      JDK_HOME_VAR_NAMES=($JDK7_HOME $JDK11_HOME)
-#   3. install jdk by sdkman
-prepare_jdks::prepare_jdks() {
-  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
-
-  JDK_HOME_VAR_NAMES=()
-
-  local jdk_name_of_sdkman
-  for jdk_name_of_sdkman in "$@"; do
-    prepare_jdks::_prepare_one_jdk "$jdk_name_of_sdkman"
-  done
-
-  cu::blue_echo "prepared jdks:"
-  local java_home_var_name
-  for java_home_var_name in "${JDK_HOME_VAR_NAMES[@]}"; do
-    cu::blue_echo "$java_home_var_name: ${!java_home_var_name}"
-  done
-}
-
-# usage:
-#   prepare_jdks::switch_java_home_to_jdk 11
-#   prepare_jdks::switch_java_home_to_jdk /path/to/java_home
-prepare_jdks::switch_java_home_to_jdk() {
-  [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
-
+prepare_jdks::_validate_java_home() {
   local -r switch_target="$1"
-  [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"
-
-  if cu::is_number_string "$switch_target"; then
-    # set by java version, e.g.
-    #   prepare_jdks::switch_java_home_to_jdk 11
-    local java_home_var_name="JDK${switch_target}_HOME"
-    export JAVA_HOME="${!java_home_var_name:-}"
-
-    [ -n "$JAVA_HOME" ] || cu::die "JAVA_HOME of java version $switch_target($java_home_var_name) is unset or blank: $JAVA_HOME"
-  else
-    # set by java home path
-    export JAVA_HOME="$switch_target"
-  fi
 
   [ -e "$JAVA_HOME" ] || cu::die "jdk $switch_target NOT existed: $JAVA_HOME"
   [ -d "$JAVA_HOME" ] || cu::die "jdk $switch_target is NOT directory: $JAVA_HOME"
 
   local java_cmd="$JAVA_HOME/bin/java"
-  [ -f "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT found!"
-  [ -x "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) is NOT executable!"
+  [ -f "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) of $switch_target is NOT found!"
+  [ -x "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) of $switch_target is NOT executable!"
+}
+
+# usage:
+#   prepare_jdks::switch_to_jdk 11
+#   prepare_jdks::switch_to_jdk /path/to/java_home
+prepare_jdks::switch_to_jdk() {
+  [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
+  local -r switch_target="$1"
+  [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"
+
+  # 1. first check env var JDK11_HOME
+  #
+  # set by java version, e.g.
+  #   prepare_jdks::switch_to_jdk 11
+  if cu::is_number_string "$switch_target"; then
+    local java_home_var_name="JDK${switch_target}_HOME"
+    if [ -d "${!java_home_var_name:-}" ]; then
+      export JAVA_HOME="${!java_home_var_name:-}"
+      cu::yellow_echo "${FUNCNAME[0]} $*: use \$$java_home_var_name($JAVA_HOME)"
+
+      prepare_jdks::_validate_java_home "$switch_target"
+      return
+    fi
+  fi
+
+  # 2. set by path of java installation
+  if [ -d "$switch_target" ]; then
+    # set by java home path
+    export JAVA_HOME="$switch_target"
+    cu::yellow_echo "${FUNCNAME[0]} $*: use switch target $JAVA_HOME as java home directory"
+
+    prepare_jdks::_validate_java_home "$switch_target"
+    return
+  fi
+
+  # 3. set by java version pattern of sdkman
+  local -r version_pattern="$switch_target"
+  local version
+  # 3.1 check *local* java versions of sdkman
+  version=$(
+    prepare_jdks::get_available_local_java_versions_of_sdkman |
+      prepare_jdks::_get_latest_java_version "$version_pattern"
+  )
+  # 3.2 check *remote* java versions of sdkman
+  if [ -z "${version}" ]; then
+    version=$(
+      prepare_jdks::get_available_remote_java_versions_of_sdkman |
+        prepare_jdks::_get_latest_java_version "$version_pattern"
+    )
+  fi
+
+  [ -n "$version" ] || cu::die "fail to switch $switch_target"
+
+  prepare_jdks::install_jdk_by_sdkman "$version"
+  JAVA_HOME="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$version")"
+  export JAVA_HOME
+  prepare_jdks::_validate_java_home "$switch_target"
+}
+
+# prepare jdks:
+#
+# usage:
+#   prepare_jdks::prepare_jdks <switch_target>...
+#
+# example:
+#   prepare_jdks::prepare_jdks 8 11 17
+#   prepare_jdks::prepare_jdks 11.0.14-ms 17.0.2-zulu
+prepare_jdks::prepare_jdks() {
+  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
+  cu::blue_echo "prepare jdks(${*}) by switch_to_jdk"
+  local switch_target
+  for switch_target; do
+    prepare_jdks::switch_to_jdk "$switch_target"
+  done
+  echo
 }
 
 ################################################################################
