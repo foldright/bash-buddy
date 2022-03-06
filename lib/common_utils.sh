@@ -88,6 +88,30 @@ cu::version_lt() {
   [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$ver" ]
 }
 
+cu::_get_first_match_version() {
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
+  local version_pattern="$1" ver
+  while read -r ver; do
+    if [[ "$ver" == "$version_pattern" || "$ver" == "${version_pattern}"[.-]* ]]; then
+      echo "$ver"
+      # drain the rest content of stdin
+      cat >/dev/null
+      return
+    fi
+  done
+}
+
+# get the latest version of versions(one version per line) from stdin
+#
+# sort versions by command `sort -V`
+cu::get_latest_version() {
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
+  local -r version_pattern="$1"
+  sort -V -r | cu::_get_first_match_version "$version_pattern"
+}
+
 ################################################################################
 # execution helper functions
 ################################################################################
