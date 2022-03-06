@@ -112,11 +112,11 @@ cu::log_then_run() {
   }
 
   if $simple_mode; then
-    echo "Run under work directory $PWD : $*"
+    echo "Run under work directory $PWD : $*" >&2
     "$@"
   else
-    cu::blue_echo "Run under work directory $PWD :"
-    cu::blue_echo "$*" 1>&2
+    cu::blue_echo "Run under work directory $PWD :" >&2
+    cu::blue_echo "$*" >&2
     time "$@"
   fi
 }
@@ -124,6 +124,6 @@ cu::log_then_run() {
 cu::die() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
-  cu::red_echo "Error: $*" 1>&2
+  cu::red_echo "Error: $*" >&2
   exit 1
 }
