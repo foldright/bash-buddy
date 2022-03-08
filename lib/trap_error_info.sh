@@ -55,11 +55,11 @@ trap_error_info::get_caller_line_no() {
 # show stack trace.
 #
 # usage:
-#   trap_error_info::get_stack_trace <indent> <hide level>
+#   trap_error_info::get_stack_trace <indentation> <hide level>
 #
-# - indent default is empty("").
+# - indentation default is empty("").
 # - hide level default is 0.
-#   hide level 0 means show from the caller level stack trace.
+#   level 0 means show from the caller level stack trace.
 #
 # the format of stack trace:
 #   <func name>(<source file>:<line no>)
@@ -70,16 +70,16 @@ trap_error_info::get_caller_line_no() {
 # e.g. $(trap_error_info::get_stack_trace)
 #
 trap_error_info::get_stack_trace() {
-  local indent="${1:-}" hide_level="${2:-0}"
+  local indentation="${1:-}" hide_level="${2:-0}"
   local func_stack_size="${#FUNCNAME[@]}"
 
   TRAP_ERROR_INFO_STACK_TRACE=''
 
   local i stack_trace nl=$'\n'
-  for ((i = ((hide_level + 1)); i < func_stack_size; i++)); do
+  for ((i = hide_level + 1; i < func_stack_size; i++)); do
     trap_error_info::get_caller_line_no "$((i - 1))"
 
-    stack_trace="${stack_trace}${stack_trace:+$nl}${indent}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
+    stack_trace="${stack_trace}${stack_trace:+$nl}${indentation}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
   done
 
   TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
