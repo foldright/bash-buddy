@@ -3,6 +3,24 @@
 # common util functions.
 # use short namespace `cu`, since these functions will be used frequent.
 #
+################################################################################
+# api functions:
+#  - simple color print functions:
+#   - cu::red_echo
+#   - cu::yellow_echo
+#   - cu::blue_echo
+#   - cu::head_line_echo
+#  - validation functions:
+#   - cu::is_number_string
+#   - cu::version_ge
+#   - cu::version_lt
+#   - cu::get_latest_version
+#  - execution helper functions:
+#   - cu::log_then_run
+#   - cu::loose_run
+#   - cu::die
+################################################################################
+#
 #_ source guard start _#
 [ -z "${__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA:+has_value}" ] || return 0
 __source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
@@ -116,16 +134,6 @@ cu::get_latest_version() {
 # execution helper functions
 ################################################################################
 
-cu::loose_run() {
-  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
-
-  set +eEuo pipefail
-  "$@"
-  local exit_code=$?
-  set -eEuo pipefail
-  return $exit_code
-}
-
 cu::log_then_run() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
@@ -143,6 +151,16 @@ cu::log_then_run() {
     cu::blue_echo "$*" >&2
     time "$@"
   fi
+}
+
+cu::loose_run() {
+  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
+
+  set +eEuo pipefail
+  "$@"
+  local exit_code=$?
+  set -eEuo pipefail
+  return $exit_code
 }
 
 cu::die() {

@@ -5,9 +5,10 @@
 ################################################################################
 # api functions:
 #
+#  - java operation functions:
 #   - jvb::get_java_version
 #   - jvb::java_cmd
-#
+#  - maven operation functions:
 #   - jvb::mvn_cmd
 ################################################################################
 #

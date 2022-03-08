@@ -8,6 +8,12 @@
 # by default, auto register_show_error_info_handler when source this script;
 # disable by define `TRAP_ERROR_NO_AUTO_REGISTER` var
 #
+################################################################################
+# api functions:
+#   - trap_error_info::register_show_error_info_handler
+#   - trap_error_info::get_stack_trace
+################################################################################
+#
 #_ source guard start _#
 [ -z "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] || return 0
 __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
@@ -15,12 +21,6 @@ readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE
 #_ source guard end _#
 
 set -eEu -o pipefail -o functrace
-
-################################################################################
-# api functions:
-#   - trap_error_info::register_show_error_info_handler
-#   - trap_error_info::get_stack_trace
-################################################################################
 
 # trap_error_info::get_caller_line_no $level
 #
