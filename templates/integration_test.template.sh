@@ -2,15 +2,16 @@
 set -eEuo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
-source FIXME/lib/trap_error_info.sh
-source FIXME/lib/common_utils.sh
+FIXME BASH_BUDDY_ROOT=/path/to/bash_buddy/dir
+
+source "$BASH_BUDDY_ROOT/lib/trap_error_info.sh"
+source "$BASH_BUDDY_ROOT/lib/common_utils.sh"
 
 ################################################################################
 # prepare
 ################################################################################
 
 readonly default_build_jdk_version=11
-
 # shellcheck disable=SC2034
 readonly PREPARE_JDKS_INSTALL_BY_SDKMAN=(
   8
@@ -18,9 +19,9 @@ readonly PREPARE_JDKS_INSTALL_BY_SDKMAN=(
   17
 )
 
-source FIXME/lib/prepare_jdks.sh
+source "$BASH_BUDDY_ROOT/lib/prepare_jdks.sh"
 
-source FIXME/lib/java_build_utils.sh
+source "$BASH_BUDDY_ROOT/lib/java_build_utils.sh"
 
 ################################################################################
 # ci build logic
@@ -43,7 +44,7 @@ jvb::mvn_cmd clean install
 ########################################
 for jdk in "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"; do
   # already tested by above `mvn install`
-  [ "$default_build_jdk_version" = "$jdk" ] && continue
+  [ "$jdk" = "$default_build_jdk_version" ] && continue
 
   prepare_jdks::switch_to_jdk "$jdk"
 
