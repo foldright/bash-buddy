@@ -34,6 +34,7 @@ jvb::get_java_version() {
   "$java_home_path/bin/java" -version 2>&1 | awk -F\" '/ version "/{print $2}'
 }
 
+# FIXME hard code memery settings
 # shellcheck disable=SC2034
 readonly JVB_DEFAULT_JAVA_OPTS=(
   -Xmx256m -Xms256m
@@ -65,8 +66,8 @@ readonly JVB_DEFAULT_MVN_OPTS=(
 )
 
 jvb::_find_mvn_cmd_path() {
-  if [ -n "${JVB_MVN_PATH:-}" ]; then
-    echo "$JVB_MVN_PATH"
+  if [ -n "${_JVB_MVN_PATH:-}" ]; then
+    echo "$_JVB_MVN_PATH"
     return
   fi
 
@@ -74,8 +75,8 @@ jvb::_find_mvn_cmd_path() {
 
   # 1. find the mvnw from project root dir
   if [ -n "${PROJECT_ROOT_DIR:-}" ] && [ -e "$PROJECT_ROOT_DIR/$maven_wrapper_name" ]; then
-    JVB_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
-    echo "$JVB_MVN_PATH"
+    _JVB_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
+    echo "$_JVB_MVN_PATH"
     return
   fi
 
@@ -83,9 +84,9 @@ jvb::_find_mvn_cmd_path() {
   local d="$PWD"
   while true; do
     local mvnw_path="$d/$maven_wrapper_name"
-    [ -f "$mvnw_path" ] && {
-      JVB_MVN_PATH="$mvnw_path"
-      echo "$JVB_MVN_PATH"
+    [ -x "$mvnw_path" ] && {
+      _JVB_MVN_PATH="$mvnw_path"
+      echo "$_JVB_MVN_PATH"
       return
     }
 
@@ -95,8 +96,8 @@ jvb::_find_mvn_cmd_path() {
 
   # 3. find mvn from $PATH
   if command -v mvn &>/dev/null; then
-    JVB_MVN_PATH=mvn
-    echo "$JVB_MVN_PATH"
+    _JVB_MVN_PATH=mvn
+    echo "$_JVB_MVN_PATH"
     return
   fi
 
@@ -112,6 +113,7 @@ jvb::_find_mvn_cmd_path() {
 jvb::mvn_cmd() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
+  # FIXME hard code logic for `DISABLE_GIT_DIRTY_CHECK`
   cu::log_then_run "$(jvb::_find_mvn_cmd_path)" \
     "${JVB_MVN_OPTS[@]}" \
     ${DISABLE_GIT_DIRTY_CHECK+-Dgit.dirty=false} \
@@ -121,16 +123,16 @@ jvb::mvn_cmd() {
 jvb::get_mvn_local_repository_dir() {
   (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-  if [ -z "${JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
-    echo "$JVB_MVN_LOCAL_REPOSITORY_DIR"
+  if [ -z "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
+    echo "$_JVB_MVN_LOCAL_REPOSITORY_DIR"
   fi
 
-  JVB_MVN_LOCAL_REPOSITORY_DIR="$(
+  _JVB_MVN_LOCAL_REPOSITORY_DIR="$(
     jvb::mvn_cmd --no-transfer-progress help:evaluate -Dexpression=settings.localRepository |
       grep '^/'
   )"
 
-  [ -n "${JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || die "Fail to find maven local repository directory"
+  [ -n "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || die "Fail to find maven local repository directory"
 }
 
 ################################################################################
