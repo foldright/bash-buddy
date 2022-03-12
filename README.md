@@ -68,6 +68,8 @@ api functions:
     - `cu::head_line_echo`
 - validation functions:
     - `cu::is_number_string`
+    - `cu::is_blank_string`
+- version related functions:
     - `cu::version_ge`
     - `cu::version_lt`
     - `cu::get_latest_version`

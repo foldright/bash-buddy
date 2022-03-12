@@ -27,6 +27,7 @@ source "$__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
 # java operation functions
 #################################################################################
 
+# output the java version extracted from `java -version`
 jvb::get_java_version() {
   (($# <= 1)) || cu::die "${FUNCNAME[0]} requires at most 1 argument! But provided $#: $*"
 

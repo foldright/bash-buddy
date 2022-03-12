@@ -12,6 +12,8 @@
 #   - cu::head_line_echo
 #  - validation functions:
 #   - cu::is_number_string
+#   - cu::is_blank_string
+#  - version related functions
 #   - cu::version_ge
 #   - cu::version_lt
 #   - cu::get_latest_version
@@ -80,14 +82,18 @@ cu::is_blank_string() {
 }
 
 ################################################################################
-# version comparison functions
+# version related functions
+#
+# versions comparison/sort by command `sort -V`
 #
 # How to compare a program's version in a shell script?
 #   https://unix.stackexchange.com/questions/285924
 ################################################################################
 
+# version comparison,is version1 greater than or equal to version2?
+#
+# usage:
 # cu::version_ge <version1> <version2>
-# version1 is greater than or equal to version2
 cu::version_ge() {
   (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
 
@@ -99,8 +105,10 @@ cu::version_ge() {
   [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
 }
 
+# version comparison, is version1 less than version2?
+#
+# usage:
 # cu::version_lt <version1> <version2>
-# version1 is less than version2
 cu::version_lt() {
   (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
 
@@ -127,8 +135,6 @@ cu::_get_first_match_version() {
 }
 
 # get the latest version of versions(one version per line) from stdin
-#
-# sort versions by command `sort -V`
 cu::get_latest_version() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
@@ -140,6 +146,13 @@ cu::get_latest_version() {
 # execution helper functions
 ################################################################################
 
+# log the command line, then run it.
+#
+# usage:
+#   cu::log_then_run command_to_run command_args...
+#
+# example:
+#   cu::log_then_run echo hello world
 cu::log_then_run() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
@@ -169,6 +182,7 @@ cu::loose_run() {
   return $exit_code
 }
 
+# output the error message then exit with error(exit code is 1)
 cu::die() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
