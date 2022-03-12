@@ -73,6 +73,12 @@ cu::is_number_string() {
   [[ "$1" =~ ^[0-9]+$ ]]
 }
 
+cu::is_blank_string() {
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
+  [[ "$1" =~ ^[[:space:]]*$ ]]
+}
+
 ################################################################################
 # version comparison functions
 #
