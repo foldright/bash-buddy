@@ -159,9 +159,7 @@ prepare_jdks::install_jdk_by_sdkman() {
   prepare_jdks::load_sdkman
 
   local jdk_name_of_sdkman="$1" jdk_home_path
-  jdk_home_path="$(
-    prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman"
-  )"
+  jdk_home_path="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$jdk_name_of_sdkman")"
 
   # install jdk by sdkman
   if [ ! -d "$jdk_home_path" ]; then
@@ -170,7 +168,6 @@ prepare_jdks::install_jdk_by_sdkman() {
   fi
 }
 
-# shellcheck disable=SC2120
 prepare_jdks::_get_latest_java_version() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
@@ -189,48 +186,90 @@ prepare_jdks::_get_latest_java_version() {
 }
 
 prepare_jdks::_validate_java_home() {
-  local -r switch_target="$1"
+  _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG=
 
-  [ -e "$JAVA_HOME" ] || cu::die "jdk $switch_target NOT existed: $JAVA_HOME"
-  [ -d "$JAVA_HOME" ] || cu::die "jdk $switch_target is NOT directory: $JAVA_HOME"
+  local -r java_home="$1"
+  if cu::is_blank_string "$java_home"; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is BLANK"
+    return 1
+  fi
 
-  local java_cmd="$JAVA_HOME/bin/java"
-  [ -f "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) of $switch_target is NOT found!"
-  [ -x "$java_cmd" ] || cu::die "\$JAVA_HOME/bin/java ($java_cmd) of $switch_target is NOT executable!"
+  if [ ! -e "$java_home" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT existed"
+    return 1
+  fi
+  if [ ! -d "$java_home" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT directory"
+    return 1
+  fi
+
+  local java_cmd="$java_home/bin/java"
+  if [ ! -f "$java_cmd" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_cmd) is NOT existed"
+    return 1
+  fi
+  if [ ! -x "$java_cmd" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_cmd) is NOT executable"
+    return 1
+  fi
 }
 
+# switch JAVA_HOME to target
+#
+# available switch target:
+#   - version pattern, e.g.
+#     - 11, 17
+#     - 11.0, 11.0.14
+#     - 11.0.14-ms
+#       exact version of sdkman
+#   - /path/to/java/home
+#
 # usage:
-#   prepare_jdks::switch_to_jdk 11
-#   prepare_jdks::switch_to_jdk /path/to/java_home
+#   prepare_jdks::switch_to_jdk 17
+#   prepare_jdks::switch_to_jdk 11.0.14-ms
+#   prepare_jdks::switch_to_jdk /path/to/java/home
+#
 prepare_jdks::switch_to_jdk() {
   [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   local -r switch_target="$1"
-  [ -n "$switch_target" ] || cu::die "jdk $switch_target is blank"
+  cu::is_blank_string "$switch_target" && cu::die "switch target($switch_target) is BLANK!"
 
-  # 1. first check env var JDK11_HOME
+  # 1. first check env var JDKx_HOME(e.g. JDK11_HOME)
   #
-  # set by java version, e.g.
+  # aka. set by java version, e.g.
   #   prepare_jdks::switch_to_jdk 11
   if cu::is_number_string "$switch_target"; then
-    local java_home_var_name="JDK${switch_target}_HOME"
-    if [ -d "${!java_home_var_name:-}" ]; then
-      export JAVA_HOME="${!java_home_var_name:-}"
-      cu::yellow_echo "${FUNCNAME[0]} $*: use \$$java_home_var_name($JAVA_HOME)"
+    local jdk_home_var_name="JDK${switch_target}_HOME"
 
-      prepare_jdks::_validate_java_home "$switch_target"
-      return
+    # check env var JDKx_HOME is defined or not
+    if [ -n "${!jdk_home_var_name+defined}" ]; then
+      local jdk_home="${!jdk_home_var_name:-}"
+
+      if prepare_jdks::_validate_java_home "$jdk_home"; then
+        export JAVA_HOME="$jdk_home"
+        cu::blue_echo "use \$$jdk_home_var_name($jdk_home) as switch target $switch_target" >&2
+        return
+      else
+        cu::yellow_echo "found \$$jdk_home_var_name($jdk_home) for switch target $switch_target, but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG, ignored!" >&2
+      fi
     fi
   fi
 
-  # 2. set by path of java installation
+  # 2. then check switch is a directory or not
+  #
+  # aka. set by path of java installation, e.g.
+  #   prepare_jdks::switch_to_jdk /path/to/java/home
   if [ -d "$switch_target" ]; then
-    # set by java home path
-    export JAVA_HOME="$switch_target"
-    cu::yellow_echo "${FUNCNAME[0]} $*: use switch target $JAVA_HOME as java home directory"
+    local jdk_home="$switch_target"
 
-    prepare_jdks::_validate_java_home "$switch_target"
-    return
+    if prepare_jdks::_validate_java_home "$jdk_home"; then
+      export JAVA_HOME="$switch_target"
+      cu::blue_echo "switch target $switch_target is a existed directory, use it as \$JAVA_HOME" >&2
+      return
+    else
+      cu::yellow_echo "found switch target $switch_target is a existed directory, but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG, ignored!" >&2
+    fi
   fi
 
   # 3. set by java version pattern of sdkman
@@ -242,22 +281,29 @@ prepare_jdks::switch_to_jdk() {
       prepare_jdks::_get_latest_java_version "$version_pattern"
   )
   # 3.2 check *remote* java versions of sdkman
-  if [ -z "${version}" ]; then
+  if [ -z "$version" ]; then
     version=$(
       prepare_jdks::get_available_remote_java_versions_of_sdkman |
         prepare_jdks::_get_latest_java_version "$version_pattern"
     )
   fi
 
-  [ -n "$version" ] || cu::die "fail to switch $switch_target"
+  [ -n "$version" ] || cu::die "fail to find available java version in sdkman for switch $switch_target!"
 
   prepare_jdks::install_jdk_by_sdkman "$version"
-  JAVA_HOME="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$version")"
-  export JAVA_HOME
-  prepare_jdks::_validate_java_home "$switch_target"
+
+  local jdk_home
+  jdk_home="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$version")"
+
+  if prepare_jdks::_validate_java_home "$jdk_home"; then
+    export JAVA_HOME="$jdk_home"
+    cu::blue_echo "use java version($version) in sdkman($jdk_home) as switch target $switch_target" >&2
+  else
+    cu::die "found available java version($version) in sdkman($jdk_home), but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG!"
+  fi
 }
 
-# prepare jdks:
+# prepare jdks
 #
 # usage:
 #   prepare_jdks::prepare_jdks <switch_target>...
@@ -265,6 +311,10 @@ prepare_jdks::switch_to_jdk() {
 # example:
 #   prepare_jdks::prepare_jdks 8 11 17
 #   prepare_jdks::prepare_jdks 11.0.14-ms 17.0.2-zulu
+#   prepare_jdks::prepare_jdks 8 11.0.14-ms 18
+#
+# see: `prepare_jdks::switch_to_jdk`
+#
 prepare_jdks::prepare_jdks() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
