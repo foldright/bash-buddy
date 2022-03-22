@@ -14,8 +14,10 @@
 #   - cu::is_number_string
 #   - cu::is_blank_string
 #  - version related functions
-#   - cu::version_ge
+#   - cu::version_le
 #   - cu::version_lt
+#   - cu::version_ge
+#   - cu::version_gt
 #   - cu::get_latest_version
 #  - execution helper functions:
 #   - cu::log_then_run
@@ -90,11 +92,11 @@ cu::is_blank_string() {
 #   https://unix.stackexchange.com/questions/285924
 ################################################################################
 
-# version comparison,is version1 greater than or equal to version2?
+# version comparison, is version1 less than or equal to version2?
 #
 # usage:
-# cu::version_ge <version1> <version2>
-cu::version_ge() {
+# cu::version_le <version1> <version2>
+cu::version_le() {
   (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
 
   local ver=$1
@@ -102,7 +104,7 @@ cu::version_ge() {
 
   [ "$ver" = "$destVer" ] && return 0
 
-  [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
+  [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$ver" ]
 }
 
 # version comparison, is version1 less than version2?
@@ -118,6 +120,36 @@ cu::version_lt() {
   [ "$ver" = "$destVer" ] && return 1
 
   [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$ver" ]
+}
+
+# version comparison, is version1 greater than or equal to version2?
+#
+# usage:
+# cu::version_ge <version1> <version2>
+cu::version_ge() {
+  (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
+
+  local ver=$1
+  local destVer=$2
+
+  [ "$ver" = "$destVer" ] && return 0
+
+  [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
+}
+
+# version comparison, is version1 greater than version2?
+#
+# usage:
+# cu::version_gt <version1> <version2>
+cu::version_gt() {
+  (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
+
+  local ver=$1
+  local destVer=$2
+
+  [ "$ver" = "$destVer" ] && return 1
+
+  [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
 }
 
 cu::_get_first_match_version() {
