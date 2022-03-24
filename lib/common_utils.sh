@@ -18,7 +18,9 @@
 #   - cu::version_lt
 #   - cu::version_ge
 #   - cu::version_gt
-#   - cu::get_latest_version
+#   - cu::is_version_match
+#   - cu::get_latest_version_match
+#   - cu::get_oldest_version_match
 #  - execution helper functions:
 #   - cu::log_then_run
 #   - cu::loose_run
@@ -152,12 +154,36 @@ cu::version_gt() {
   [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
 }
 
-cu::_get_first_match_version() {
+
+# version match, is version match version pattern?
+#
+# usage:
+# cu::version_gt <version> <version pattern>
+#
+# example:
+#   cu::is_version_match 11.0.1-p1 11         # true
+#   cu::is_version_match 11.0.1-p1 11.0       # true
+#   cu::is_version_match 11.0.1-p1 11.0.1     # true
+#   cu::is_version_match 11.0.1-p1 11.0.1-p1  # true
+#
+#   cu::is_version_match 11.0.1-p1 10         # false
+#   cu::is_version_match 11.0.1-p1 12         # false
+#   cu::is_version_match 11.0.1-p1 11.1       # false
+#   cu::is_version_match 11.0.1-p1 11.0.0     # false
+#   cu::is_version_match 11.0.1-p1 11.0.1-rc  # false
+cu::is_version_match() {
+  (($# == 2)) || cu::die "${FUNCNAME[0]} requires exact 2 arguments! But provided $#: $*"
+
+  local ver="$1" version_pattern="$2"
+  [[ "$ver" == "$version_pattern" || "$ver" == "$version_pattern"[.-]* ]]
+}
+
+cu::_get_first_version_match() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   local version_pattern="$1" ver
   while read -r ver; do
-    if [[ "$ver" == "$version_pattern" || "$ver" == "${version_pattern}"[.-]* ]]; then
+    if cu::is_version_match "$ver" "$version_pattern"; then
       echo "$ver"
       # drain the rest content of stdin
       cat >/dev/null
@@ -167,11 +193,25 @@ cu::_get_first_match_version() {
 }
 
 # get the latest version of versions(one version per line) from stdin
-cu::get_latest_version() {
+#
+# usage:
+# cu::get_latest_version_match <version pattern>
+cu::get_latest_version_match() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   local -r version_pattern="$1"
-  sort -V -r | cu::_get_first_match_version "$version_pattern"
+  sort -V -r | cu::_get_first_version_match "$version_pattern"
+}
+
+# get the oldest version of versions(one version per line) from stdin
+#
+# usage:
+# cu::get_oldest_version_match <version pattern>
+cu::get_oldest_version_match() {
+  (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
+
+  local -r version_pattern="$1"
+  sort -V | cu::_get_first_version_match "$version_pattern"
 }
 
 ################################################################################

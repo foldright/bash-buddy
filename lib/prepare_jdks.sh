@@ -175,14 +175,14 @@ prepare_jdks::_get_latest_java_version() {
   input=$(cat)
 
   # 1. first find non-ea and non-fx versions
-  result="$(echo "$input" | grep -vE '\.ea\.|\.fx-' | cu::get_latest_version "$version_pattern")"
+  result="$(echo "$input" | grep -vE '\.ea\.|\.fx-' | cu::get_latest_version_match "$version_pattern")"
   if [ -n "$result" ]; then
     echo "$result"
     return 0
   fi
 
   # 2. then find versions
-  echo "$input" | cu::get_latest_version "$version_pattern"
+  echo "$input" | cu::get_latest_version_match "$version_pattern"
 }
 
 prepare_jdks::_validate_java_home() {

@@ -74,7 +74,9 @@ api functions:
     - `cu::version_lt`
     - `cu::version_ge`
     - `cu::version_gt`
-    - `cu::get_latest_version`
+    - `cu::is_version_match`
+    - `cu::get_latest_version_match`
+    - `cu::get_oldest_version_match`
 - execution helper functions:
     - `cu::log_then_run`
     - `cu::loose_run`
