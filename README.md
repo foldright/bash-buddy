@@ -40,24 +40,24 @@ readonly __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828
 
 ## [`trap_error_info.sh`](lib/trap_error_info.sh)
 
-a common lib to show trapped error info.
+a common lib to show trapped error info including stack trace.
 
 provide function `trap_error_info::register_show_error_info_handler`
 to register the error-trap handler which show error info when trapped error.
 
-by default, auto register_show_error_info_handler when source this script; disable by
-define `TRAP_ERROR_NO_AUTO_REGISTER` var
+by default, auto call `trap_error_info::register_show_error_info_handler` when source this script; disable by
+define `TRAP_ERROR_NO_AUTO_REGISTER` var.
 
 api functions:
 
-- `trap_error_info::register_show_error_info_handler`
 - `trap_error_info::get_stack_trace`
+- `trap_error_info::register_show_error_info_handler`
 
 ## [`common_utils.sh`](lib/common_utils.sh)
 
 common util functions.
 
-use short namespace `cu`, since these functions will be used frequent.
+use short namespace `cu`, since these functions will be used frequently.
 
 api functions:
 
@@ -96,7 +96,7 @@ api functions:
 
 ## [`prepare_jdks.sh`](lib/prepare_jdks.sh)
 
-a lib to prepare jdks by sdkman https://sdkman.io/
+a lib to prepare jdks by [sdkman](https://sdkman.io/).
 
 api functions:
 
