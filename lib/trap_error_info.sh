@@ -14,7 +14,7 @@
 #   - trap_error_info::get_stack_trace
 ################################################################################
 #
-#_ source guard start _#
+#_ source guard begin _#
 [ -z "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] || return 0
 __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE

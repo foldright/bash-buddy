@@ -14,7 +14,7 @@
 #   - prepare_jdks::install_sdkman
 ################################################################################
 #
-#_ source guard start _#
+#_ source guard begin _#
 [ -z "${__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465:+has_value}" ] || return 0
 __source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465

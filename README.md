@@ -29,7 +29,7 @@ Example:
 
 ```sh
 $ gen_source_guard
-#_ source guard start _#
+#_ source guard begin _#
 [ -z "${__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828:+has_value}" ] || return 0
 __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828

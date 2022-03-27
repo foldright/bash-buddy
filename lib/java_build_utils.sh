@@ -12,7 +12,7 @@
 #   - jvb::mvn_cmd
 ################################################################################
 #
-#_ source guard start _#
+#_ source guard begin _#
 [ -z "${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F:+has_value}" ] || return 0
 __source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 readonly __source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F
