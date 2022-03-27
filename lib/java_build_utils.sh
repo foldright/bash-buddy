@@ -133,7 +133,7 @@ jvb::get_mvn_local_repository_dir() {
       grep '^/'
   )"
 
-  [ -n "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || die "Fail to find maven local repository directory"
+  [ -n "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || cu::die "Fail to find maven local repository directory"
 }
 
 ################################################################################
