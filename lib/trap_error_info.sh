@@ -79,7 +79,7 @@ trap_error_info::get_stack_trace() {
   for ((i = hide_level + 1; i < func_stack_size; i++)); do
     trap_error_info::get_caller_line_no "$((i - 1))"
 
-    stack_trace="${stack_trace}${stack_trace:+$nl}${indentation}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
+    stack_trace="${stack_trace:+$stack_trace$nl}${indentation}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
   done
 
   TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
