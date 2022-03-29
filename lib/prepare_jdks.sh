@@ -203,13 +203,13 @@ prepare_jdks::_validate_java_home() {
     return 1
   fi
 
-  local java_cmd="$java_home/bin/java"
-  if [ ! -f "$java_cmd" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_cmd) is NOT existed"
+  local java_path="$java_home/bin/java"
+  if [ ! -f "$java_path" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT existed"
     return 1
   fi
-  if [ ! -x "$java_cmd" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_cmd) is NOT executable"
+  if [ ! -x "$java_path" ]; then
+    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT executable"
     return 1
   fi
 }

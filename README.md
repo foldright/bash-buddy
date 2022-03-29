@@ -7,34 +7,17 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [⚒️ Tool](#-tool)
-    - [`gen_source_guard`](#gen_source_guard)
 - [🗂 Lib](#%F0%9F%97%82-lib)
     - [`trap_error_info.sh`](#trap_error_infosh)
     - [`common_utils.sh`](#common_utilssh)
     - [`java_build_utils.sh`](#java_build_utilssh)
     - [`prepare_jdks.sh`](#prepare_jdkssh)
+- [⚒️ Tool](#-tool)
+    - [`gen_source_guard`](#gen_source_guard)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 -----------------------------------
-
-# ⚒️ Tool
-
-## [`gen_source_guard`](bin/gen_source_guard)
-
-Generate source guard to bash lib scripts.
-
-Example:
-
-```sh
-$ gen_source_guard
-#_ source guard begin _#
-[ -z "${__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828:+has_value}" ] || return 0
-__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-readonly __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828
-#_ source guard end _#
-```
 
 # 🗂 Lib
 
@@ -105,3 +88,20 @@ api functions:
 - `prepare_jdks::install_jdk_by_sdkman`
 - `prepare_jdks::load_sdkman`
 - `prepare_jdks::install_sdkman`
+
+# ⚒️ Tool
+
+## [`gen_source_guard`](bin/gen_source_guard)
+
+Generate source guard to bash lib scripts.
+
+Example:
+
+```sh
+$ gen_source_guard
+#_ source guard begin _#
+[ -z "${__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828:+has_value}" ] || return 0
+__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+readonly __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828
+#_ source guard end _#
+```

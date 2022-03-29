@@ -5,7 +5,7 @@
 # provide function `trap_error_info::register_show_error_info_handler` to register
 # the error-trap handler which show error info when trapped error.
 #
-# by default, auto register_show_error_info_handler when source this script;
+# by default, auto call `trap_error_info::register_show_error_info_handler` when source this script;
 # disable by define `TRAP_ERROR_NO_AUTO_REGISTER` var
 #
 ################################################################################
@@ -44,8 +44,8 @@ trap_error_info::get_caller_line_no() {
 
   TRAP_ERROR_INFO_CALLER_LINE_NO=''
 
-  # level 0 of caller means this `get_caller_line_no` self
-  # level + 1, to skip `get_caller_line_no` self
+  # level 0 of caller means this `trap_error_info::get_caller_line_no` self
+  # set level 1 to skip `trap_error_info::get_caller_line_no` self
   local line_no _
   read -r line_no _ < <(caller $((level + 1)))
 
@@ -114,7 +114,7 @@ trap_error_info::_show_trapped_error_info() {
     echo "Exit status code: $exit_code"
 
     echo "Stack trace:"
-    # set hide level 1, hide `_show_trapped_error_info` self stack trace
+    # set hide level 1, hide `trap_error_info::_show_trapped_error_info` self stack trace
     trap_error_info::get_stack_trace "  " 1
     echo "$TRAP_ERROR_INFO_STACK_TRACE"
 
@@ -131,7 +131,7 @@ trap_error_info::register_show_error_info_handler() {
 ################################################################################
 # auto run logic when source
 #
-# auto register_show_error_info_handler when source this script;
+# auto call `trap_error_info::register_show_error_info_handler` when source this script;
 # disable by define `TRAP_ERROR_NO_AUTO_REGISTER` var
 ################################################################################
 
