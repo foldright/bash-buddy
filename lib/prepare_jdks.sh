@@ -230,6 +230,23 @@ prepare_jdks::_validate_java_home() {
 #   prepare_jdks::switch_to_jdk /path/to/java/home
 #
 prepare_jdks::switch_to_jdk() {
+  local verbose_mode=false prepare_mode=false
+  while true; do
+    case "$1" in
+    -v)
+      verbose_mode=true
+      shift
+      ;;
+    -p)
+      prepare_mode=true
+      shift
+      ;;
+    *)
+      break
+      ;;
+    esac
+  done
+
   [ $# == 1 ] || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   local -r switch_target="$1"
@@ -247,8 +264,12 @@ prepare_jdks::switch_to_jdk() {
       local jdk_home="${!jdk_home_var_name:-}"
 
       if prepare_jdks::_validate_java_home "$jdk_home"; then
-        export JAVA_HOME="$jdk_home"
-        cu::blue_echo "use \$$jdk_home_var_name($jdk_home) as switch target $switch_target" >&2
+        if ! $prepare_mode; then
+          export JAVA_HOME="$jdk_home"
+        fi
+        if $verbose_mode; then
+          cu::blue_echo "use \$$jdk_home_var_name($jdk_home) as switch target $switch_target" >&2
+        fi
         return
       else
         cu::yellow_echo "found \$$jdk_home_var_name($jdk_home) for switch target $switch_target, but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG, ignored!" >&2
@@ -264,8 +285,12 @@ prepare_jdks::switch_to_jdk() {
     local jdk_home="$switch_target"
 
     if prepare_jdks::_validate_java_home "$jdk_home"; then
-      export JAVA_HOME="$switch_target"
-      cu::blue_echo "switch target $switch_target is a existed directory, use it as \$JAVA_HOME" >&2
+      if ! $prepare_mode; then
+        export JAVA_HOME="$switch_target"
+      fi
+      if $verbose_mode; then
+        cu::blue_echo "use $switch_target directory as switch target, since it is a existed directory" >&2
+      fi
       return
     else
       cu::yellow_echo "found switch target $switch_target is a existed directory, but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG, ignored!" >&2
@@ -296,8 +321,12 @@ prepare_jdks::switch_to_jdk() {
   jdk_home="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$version")"
 
   if prepare_jdks::_validate_java_home "$jdk_home"; then
-    export JAVA_HOME="$jdk_home"
-    cu::blue_echo "use java version($version) in sdkman($jdk_home) as switch target $switch_target" >&2
+    if ! $prepare_mode; then
+      export JAVA_HOME="$jdk_home"
+    fi
+    if $verbose_mode; then
+      cu::blue_echo "use java version($version) in sdkman($jdk_home) as switch target $switch_target" >&2
+    fi
   else
     cu::die "found available java version($version) in sdkman($jdk_home), but $_PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG!"
   fi
@@ -318,10 +347,10 @@ prepare_jdks::switch_to_jdk() {
 prepare_jdks::prepare_jdks() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
-  cu::blue_echo "prepare jdks(${*}) by switch_to_jdk"
+  cu::blue_echo "prepare jdks(${*})"
   local switch_target
   for switch_target; do
-    prepare_jdks::switch_to_jdk "$switch_target"
+    prepare_jdks::switch_to_jdk -p "$switch_target"
   done
   echo
 }
