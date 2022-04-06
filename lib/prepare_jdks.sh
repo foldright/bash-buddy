@@ -347,12 +347,11 @@ prepare_jdks::switch_to_jdk() {
 prepare_jdks::prepare_jdks() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
-  cu::blue_echo "prepare jdks(${*})"
+  cu::blue_echo "prepare jdks: ${*}"
   local switch_target
   for switch_target; do
     prepare_jdks::switch_to_jdk -p "$switch_target"
   done
-  echo
 }
 
 ################################################################################
