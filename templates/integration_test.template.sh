@@ -2,7 +2,8 @@
 set -eEuo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
-FIXME BASH_BUDDY_ROOT=/path/to/bash_buddy/dir
+FIXME BASH_BUDDY_ROOT="$(readlink -f path/to/bash-buddy/dir)"
+readonly BASH_BUDDY_ROOT
 
 source "$BASH_BUDDY_ROOT/lib/trap_error_info.sh"
 source "$BASH_BUDDY_ROOT/lib/common_utils.sh"
@@ -27,28 +28,28 @@ source "$BASH_BUDDY_ROOT/lib/java_build_utils.sh"
 # ci build logic
 ################################################################################
 
-FIXME PROJECT_ROOT_DIR=/path/to/project/root/dir
+FIXME PROJECT_ROOT_DIR="$(readlink -f /path/to/project/root/dir)"
 cd "$PROJECT_ROOT_DIR"
 
 ########################################
-# default jdk 11, do build and test
+# do build and test by default version jdk
 ########################################
 
 prepare_jdks::switch_to_jdk "$default_build_jdk_version"
 
-cu::head_line_echo "build and test with Java: $JAVA_HOME"
+cu::head_line_echo "build and test with JDK: $JAVA_HOME"
 jvb::mvn_cmd clean install
 
 ########################################
-# test multi-version java
+# test by multi-version jdk
 ########################################
 for jdk in "${PREPARE_JDKS_INSTALL_BY_SDKMAN[@]}"; do
-  # already tested by above `mvn install`
+  # already tested above
   [ "$jdk" = "$default_build_jdk_version" ] && continue
 
   prepare_jdks::switch_to_jdk "$jdk"
 
-  cu::head_line_echo "test with Java: $JAVA_HOME"
+  cu::head_line_echo "test with JDK: $JAVA_HOME"
   # just test without build
   jvb::mvn_cmd surefire:test
 done
