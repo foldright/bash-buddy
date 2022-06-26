@@ -172,7 +172,10 @@ prepare_jdks::_get_latest_java_version() {
   (($# == 1)) || cu::die "${FUNCNAME[0]} requires exact 1 argument! But provided $#: $*"
 
   local version_pattern="$1" input result
-  input=$(cat)
+  # exclude
+  #   - fx:       \.fx-
+  #   - GraalVM:  -(grl|gln|nik)\>
+  input=$(cat | grep -vE '\.fx-|-(grl|gln|nik|mandrel)\>')
 
   # 1. first find non-ea and non-fx versions
   result="$(echo "$input" | grep -vE '\.ea\.|\.fx-' | cu::get_latest_version_match "$version_pattern")"
