@@ -254,6 +254,34 @@ cu::loose_run() {
   return $exit_code
 }
 
+# print calling(quoted) command line which is able to copy and paste to rerun safely
+#
+# How to get the complete calling command of a BASH script from inside the script (not just the arguments)
+# https://stackoverflow.com/questions/36625593
+#
+# bash metacharacter:
+# https://www.gnu.org/software/bash/manual/html_node/Definitions.html
+cu::print_calling_command_line() {
+  local arg isFirst=true bash_meta_char_regex=$'[ \t\n|&;()<>$!"]'
+
+  for arg; do
+    if $isFirst; then
+      isFirst=false
+    else
+      printf ' '
+    fi
+
+    if [[ "$arg" =~ \' ]]; then
+      printf '%q' "$arg"
+    elif [[ "$arg" =~ $bash_meta_char_regex ]]; then
+      printf "'%s'" "$arg"
+    else
+      printf "%s" "$arg"
+    fi
+  done
+  echo
+}
+
 # output the error message then exit with error(exit code is 1)
 cu::die() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"

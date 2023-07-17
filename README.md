@@ -63,6 +63,7 @@ api functions:
 - execution helper functions:
     - `cu::log_then_run`
     - `cu::loose_run`
+    - `cu::print_calling_command_line`
     - `cu::die`
 
 ## [`java_build_utils.sh`](lib/java_build_utils.sh)
