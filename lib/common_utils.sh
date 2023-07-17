@@ -235,11 +235,11 @@ cu::log_then_run() {
   }
 
   if $simple_mode; then
-    echo "Run under work directory $PWD : $*" >&2
+    echo "Run under work directory $PWD : $(cu::print_calling_command_line "$@")" >&2
     "$@"
   else
     cu::blue_echo "Run under work directory $PWD :" >&2
-    cu::blue_echo "$*" >&2
+    cu::blue_echo "$(cu::print_calling_command_line "$@")" >&2
     time "$@"
   fi
 }
