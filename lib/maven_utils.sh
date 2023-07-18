@@ -5,11 +5,7 @@
 ################################################################################
 # api functions:
 #
-#  - java operation functions:
-#   - jvb::get_java_version
-#   - jvb::java_cmd
-#  - maven operation functions:
-#   - jvb::mvn_cmd
+#   - mvu::mvn_cmd
 ################################################################################
 #
 #_ source guard begin _#
@@ -27,13 +23,13 @@ source "$__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
 # maven operation functions
 #################################################################################
 
-readonly JVB_DEFAULT_MVN_OPTS=(
+readonly MVU_DEFAULT_MVN_OPTS=(
   -V --no-transfer-progress
 )
 
-jvb::_find_mvn_cmd_path() {
-  if [ -n "${_JVB_MVN_PATH:-}" ]; then
-    echo "$_JVB_MVN_PATH"
+mvu::_find_mvn_cmd_path() {
+  if [ -n "${_MVU_MVN_PATH:-}" ]; then
+    echo "$_MVU_MVN_PATH"
     return
   fi
 
@@ -41,8 +37,8 @@ jvb::_find_mvn_cmd_path() {
 
   # 1. find the mvnw from project root dir
   if [[ -n "${PROJECT_ROOT_DIR:-}" && -e "$PROJECT_ROOT_DIR/$maven_wrapper_name" ]]; then
-    _JVB_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
-    echo "$_JVB_MVN_PATH"
+    _MVU_MVN_PATH="$PROJECT_ROOT_DIR/$maven_wrapper_name"
+    echo "$_MVU_MVN_PATH"
     return
   fi
 
@@ -51,8 +47,8 @@ jvb::_find_mvn_cmd_path() {
   while true; do
     local mvnw_path="$d/$maven_wrapper_name"
     [ -x "$mvnw_path" ] && {
-      _JVB_MVN_PATH="$mvnw_path"
-      echo "$_JVB_MVN_PATH"
+      _MVU_MVN_PATH="$mvnw_path"
+      echo "$_MVU_MVN_PATH"
       return
     }
 
@@ -62,8 +58,8 @@ jvb::_find_mvn_cmd_path() {
 
   # 3. find mvn from $PATH
   if command -v mvn &>/dev/null; then
-    _JVB_MVN_PATH=mvn
-    echo "$_JVB_MVN_PATH"
+    _MVU_MVN_PATH=mvn
+    echo "$_MVU_MVN_PATH"
     return
   fi
 
@@ -76,41 +72,41 @@ jvb::_find_mvn_cmd_path() {
   )"
 }
 
-jvb::mvn_cmd() {
+mvu::mvn_cmd() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
   # FIXME hard code logic for `DISABLE_GIT_DIRTY_CHECK`
-  cu::log_then_run "$(jvb::_find_mvn_cmd_path)" \
-    "${JVB_MVN_OPTS[@]}" \
+  cu::log_then_run "$(mvu::_find_mvn_cmd_path)" \
+    "${MVU_MVN_OPTS[@]}" \
     ${DISABLE_GIT_DIRTY_CHECK+-Dgit.dirty=false} \
     "$@"
 }
 
-jvb::get_mvn_local_repository_dir() {
+mvu::get_mvn_local_repository_dir() {
   (($# == 0)) || cu::die "${FUNCNAME[0]} requires no arguments! But provided $#: $*"
 
-  if [ -z "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
-    echo "$_JVB_MVN_LOCAL_REPOSITORY_DIR"
+  if [ -z "${_MVU_MVN_LOCAL_REPOSITORY_DIR:-}" ]; then
+    echo "$_MVU_MVN_LOCAL_REPOSITORY_DIR"
   fi
 
-  _JVB_MVN_LOCAL_REPOSITORY_DIR="$(
-    jvb::mvn_cmd --no-transfer-progress help:evaluate -Dexpression=settings.localRepository |
+  _MVU_MVN_LOCAL_REPOSITORY_DIR="$(
+    mvu::mvn_cmd --no-transfer-progress help:evaluate -Dexpression=settings.localRepository |
       grep '^/'
   )"
 
-  [ -n "${_JVB_MVN_LOCAL_REPOSITORY_DIR:-}" ] || cu::die "Fail to find maven local repository directory"
+  [ -n "${_MVU_MVN_LOCAL_REPOSITORY_DIR:-}" ] || cu::die "Fail to find maven local repository directory"
 }
 
 ################################################################################
 # auto run logic when source
 ################################################################################
 
-jvb::__auto_run_when_source() {
+mvu::__auto_run_when_source() {
   # set VAR if absent
 
-  if [ -z "${JVB_MVN_OPTS[*]:-}" ]; then
-    JVB_MVN_OPTS=("${JVB_DEFAULT_MVN_OPTS[@]}")
+  if [ -z "${MVU_MVN_OPTS[*]:-}" ]; then
+    MVU_MVN_OPTS=("${MVU_DEFAULT_MVN_OPTS[@]}")
   fi
 }
 
-jvb::__auto_run_when_source
+mvu::__auto_run_when_source

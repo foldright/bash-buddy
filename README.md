@@ -10,7 +10,7 @@
 - [🗂 Lib](#%F0%9F%97%82-lib)
     - [`trap_error_info.sh`](#trap_error_infosh)
     - [`common_utils.sh`](#common_utilssh)
-    - [`java_build_utils.sh`](#java_build_utilssh)
+    - [`maven_utils.sh`](#java_build_utilssh)
     - [`prepare_jdks.sh`](#prepare_jdkssh)
 - [⚒️ Tool](#-tool)
     - [`gen_source_guard`](#gen_source_guard)
@@ -76,14 +76,14 @@ api functions:
 - `jvu::switch_to_jdk`
 - `jvu::java_cmd`
 
-## [`java_build_utils.sh`](lib/java_build_utils.sh)
+## [`maven_utils.sh`](lib/maven_utils.sh)
 
 maven util functions for build.
 
 api functions:
 
 - maven operation functions:
-    - `jvb::mvn_cmd`
+    - `mvu::mvn_cmd`
 
 ## [`prepare_jdks.sh`](lib/prepare_jdks.sh)
 

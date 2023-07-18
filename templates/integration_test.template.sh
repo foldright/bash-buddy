@@ -22,7 +22,7 @@ readonly PREPARE_JDKS_INSTALL_BY_SDKMAN=(
 
 source "$BASH_BUDDY_ROOT/lib/prepare_jdks.sh"
 
-source "$BASH_BUDDY_ROOT/lib/java_build_utils.sh"
+source "$BASH_BUDDY_ROOT/lib/maven_utils.sh"
 
 ################################################################################
 # ci build logic
