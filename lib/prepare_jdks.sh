@@ -24,6 +24,7 @@ set -eEuo pipefail
 
 # shellcheck source=common_utils.sh
 source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
+source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/java_utils.sh"
 
 # install sdkman.
 #
@@ -188,35 +189,6 @@ prepare_jdks::_get_latest_java_version() {
   echo "$input" | cu::get_latest_version_match "$version_pattern"
 }
 
-prepare_jdks::_validate_java_home() {
-  _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG=
-
-  local -r java_home="$1"
-  if cu::is_blank_string "$java_home"; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is BLANK"
-    return 1
-  fi
-
-  if [ ! -e "$java_home" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT existed"
-    return 1
-  fi
-  if [ ! -d "$java_home" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT directory"
-    return 1
-  fi
-
-  local java_path="$java_home/bin/java"
-  if [ ! -f "$java_path" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT existed"
-    return 1
-  fi
-  if [ ! -x "$java_path" ]; then
-    _PREPARE_JDKS_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT executable"
-    return 1
-  fi
-}
-
 # switch JAVA_HOME to target
 #
 # available switch target:
@@ -266,7 +238,7 @@ prepare_jdks::switch_to_jdk() {
     if [ -n "${!jdk_home_var_name+defined}" ]; then
       local jdk_home="${!jdk_home_var_name:-}"
 
-      if prepare_jdks::_validate_java_home "$jdk_home"; then
+      if jvu::_validate_java_home "$jdk_home"; then
         if ! $prepare_mode; then
           export JAVA_HOME="$jdk_home"
         fi
@@ -323,7 +295,7 @@ prepare_jdks::switch_to_jdk() {
   local jdk_home
   jdk_home="$(prepare_jdks::_get_jdk_path_from_jdk_name_of_sdkman "$version")"
 
-  if prepare_jdks::_validate_java_home "$jdk_home"; then
+  if jvu::_validate_java_home "$jdk_home"; then
     if ! $prepare_mode; then
       export JAVA_HOME="$jdk_home"
     fi

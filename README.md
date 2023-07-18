@@ -66,15 +66,22 @@ api functions:
     - `cu::print_calling_command_line`
     - `cu::die`
 
-## [`java_build_utils.sh`](lib/java_build_utils.sh)
+## [`java_utils.sh`](lib/javautils.sh)
 
-java and maven util functions for build.
+java util functions.
 
 api functions:
 
-- java operation functions:
-    - `jvb::get_java_version`
-    - `jvb::java_cmd`
+- `jvu::get_java_version`
+- `jvu::switch_to_jdk`
+- `jvu::java_cmd`
+
+## [`java_build_utils.sh`](lib/java_build_utils.sh)
+
+maven util functions for build.
+
+api functions:
+
 - maven operation functions:
     - `jvb::mvn_cmd`
 
