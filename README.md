@@ -7,10 +7,11 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [🗂 Lib](#%F0%9F%97%82-lib)
+- [🗂 Lib](#-lib)
     - [`trap_error_info.sh`](#trap_error_infosh)
     - [`common_utils.sh`](#common_utilssh)
-    - [`maven_utils.sh`](#java_build_utilssh)
+    - [`java_utils.sh`](#java_utilssh)
+    - [`maven_utils.sh`](#maven_utilssh)
     - [`prepare_jdks.sh`](#prepare_jdkssh)
 - [⚒️ Tool](#-tool)
     - [`gen_source_guard`](#gen_source_guard)
