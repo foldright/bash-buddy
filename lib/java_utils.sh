@@ -38,30 +38,30 @@ jvu::get_java_version() {
 #################################################################################
 
 jvu::_validate_java_home() {
-  _jvu_VALIDATE_JAVA_HOME_ERR_MSG=
+  _JVU_VALIDATE_JAVA_HOME_ERR_MSG=
 
   local -r java_home="$1"
   if cu::is_blank_string "$java_home"; then
-    _jvu_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is BLANK"
+    _JVU_VALIDATE_JAVA_HOME_ERR_MSG="java home value($java_home) is BLANK"
     return 1
   fi
 
   if [ ! -e "$java_home" ]; then
-    _jvu_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT existed"
+    _JVU_VALIDATE_JAVA_HOME_ERR_MSG="java home value($java_home) is NOT a existed file"
     return 1
   fi
   if [ ! -d "$java_home" ]; then
-    _jvu_VALIDATE_JAVA_HOME_ERR_MSG="java home($java_home) is NOT directory"
+    _JVU_VALIDATE_JAVA_HOME_ERR_MSG="java home value($java_home) is NOT a directory"
     return 1
   fi
 
   local java_path="$java_home/bin/java"
   if [ ! -f "$java_path" ]; then
-    _jvu_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT existed"
+    _JVU_VALIDATE_JAVA_HOME_ERR_MSG="java_home/bin/java($java_path) is NOT existed"
     return 1
   fi
   if [ ! -x "$java_path" ]; then
-    _jvu_VALIDATE_JAVA_HOME_ERR_MSG="\$java_home/bin/java($java_path) is NOT executable"
+    _JVU_VALIDATE_JAVA_HOME_ERR_MSG="java_home/bin/java($java_path) is NOT executable"
     return 1
   fi
 }
@@ -91,11 +91,11 @@ jvu::switch_to_jdk() {
     local jdk_home_var_name="JAVA${switch_target}_HOME"
     # check env var JAVAx_HOME is defined or not
     if [ -z "${!jdk_home_var_name+defined}" ]; then
-      cu::die "use \$$jdk_home_var_name as switch target, but \$$jdk_home_var_name is NOT defined!" >&2
+      cu::die "use \$$jdk_home_var_name as java home for switch target($switch_target), but \$$jdk_home_var_name is NOT defined!" >&2
     fi
     local jdk_home="${!jdk_home_var_name:-}"
     if ! jvu::_validate_java_home "$jdk_home"; then
-      cu::die "found \$$jdk_home_var_name($jdk_home) for switch target $switch_target, but $_jvu_VALIDATE_JAVA_HOME_ERR_MSG!" >&2
+      cu::die "use \$$jdk_home_var_name($jdk_home) as java home for switch target($switch_target), but $_JVU_VALIDATE_JAVA_HOME_ERR_MSG!" >&2
     fi
 
     export JAVA_HOME="$jdk_home"
@@ -108,7 +108,7 @@ jvu::switch_to_jdk() {
   #   jvu::switch_to_jdk /path/to/java/home
   local jdk_home="$switch_target"
   if ! jvu::_validate_java_home "$jdk_home"; then
-    cu:die "use $switch_target directory as switch target, but $_jvu_VALIDATE_JAVA_HOME_ERR_MSG!" >&2
+    cu::die "use switch target($switch_target) as java home, but $_JVU_VALIDATE_JAVA_HOME_ERR_MSG!" >&2
   fi
   export JAVA_HOME="$jdk_home"
 }
