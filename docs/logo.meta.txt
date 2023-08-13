@@ -3,4 +3,4 @@ logo is created by https://www.logoly.pro
 font: Francois One
 
 logo.fond-size: 60
-logo-social.fond-size: 160
+logo-social.fond-size: 180
