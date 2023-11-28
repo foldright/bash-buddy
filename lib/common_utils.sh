@@ -43,12 +43,15 @@ cu::color_echo() {
   local color=$1
   shift
 
-  # NOTE: $'foo' is the escape sequence syntax of bash
-  local -r ec=$'\033'      # escape char
-  local -r eend=$'\033[0m' # escape end
-
-  # if stdout is the console, turn on color output.
-  [ -t 1 ] && echo "${ec}[1;${color}m$*${eend}" || echo "$*"
+  # if stdout is terminal, turn on color output.
+  #
+  # about CI env var
+  #   https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+  if [[ -t 1 || true = "${GITHUB_ACTIONS:-}" ]]; then
+    printf "\e[1;${color}m%s\e[0m\n" "$*"
+  else
+    printf '%s\n' "$*"
+  fi
 }
 
 cu::red_echo() {
@@ -153,7 +156,6 @@ cu::version_gt() {
 
   [ "$(printf '%s\n' "$ver" "$destVer" | sort -V | head -n1)" = "$destVer" ]
 }
-
 
 # version match, is version match version pattern?
 #
