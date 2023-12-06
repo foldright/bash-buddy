@@ -140,6 +140,31 @@ jvu::java_cmd() {
 # auto run logic when source
 ################################################################################
 
+jvu::__detect_java_home_when_github_actions() {
+  [[ "${GITHUB_ACTIONS:-}" = true ]] || return 0
+
+  local jh_name matched_version jh assignment
+  local -a detected=()
+  for jh_name in "${!JAVA_HOME_@}"; do
+    [[ "$jh_name" =~ ^JAVA_HOME_([0-9]+)_ ]] || continue
+    matched_version="${BASH_REMATCH[1]}"
+
+    jh="${!jh_name:-}"
+    [ -d "$jh" ] || continue
+
+    printf -v assignment 'JAVA%q_HOME=%q' "$matched_version" "$jh"
+    detected=(${detected[@]:+"${detected[@]}"} "$assignment")
+  done
+
+  (("${#detected[@]}" > 0)) || return 0
+  cu::yellow_echo "Detected JAVA_HOME when running in GitHub Actions:"
+  for assignment in "${detected[@]}"; do
+    # shellcheck disable=SC2163
+    export "$assignment"
+    echo "  export $assignment"
+  done
+}
+
 jvu::__auto_run_when_source() {
   # set VAR if absent
 
@@ -150,6 +175,8 @@ jvu::__auto_run_when_source() {
   if [ -z "${JVU_JAVA_OPTS[*]:-}" ]; then
     JVU_JAVA_OPTS=("${JVU_DEFAULT_JAVA_OPTS[@]}")
   fi
+
+  jvu::__detect_java_home_when_github_actions
 }
 
 jvu::__auto_run_when_source
