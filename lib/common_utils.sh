@@ -47,7 +47,7 @@ cu::color_echo() {
   #
   # about CI env var
   #   https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-  if [[ -t 1 || true = "${GITHUB_ACTIONS:-}" ]]; then
+  if [[ -t 1 || "${GITHUB_ACTIONS:-}" = true ]]; then
     printf "\e[1;${color}m%s\e[0m\n" "$*"
   else
     printf '%s\n' "$*"
@@ -228,13 +228,13 @@ cu::get_oldest_version_match() {
 # example:
 #   cu::log_then_run echo hello world
 cu::log_then_run() {
-  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
-
   local simple_mode=false
   [ "$1" = "-s" ] && {
     simple_mode=true
     shift
   }
+
+  (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
   if $simple_mode; then
     echo "Run under work directory $PWD : $(cu::print_calling_command_line "$@")" >&2
