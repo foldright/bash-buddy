@@ -9,16 +9,16 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -n "${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F:+has_value}" ] && return
-__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F:+has_value}" ] && return
+source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F%/*}
+readonly source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=${source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F%/*}
 #_ source guard end _#
 
 set -eEuo pipefail
 
 # shellcheck source=common_utils.sh
-source "$__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
+source "$source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F/common_utils.sh"
 
 #################################################################################
 # maven operation functions

@@ -15,10 +15,10 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -n "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] && return
-__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] && return
+source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE%/*}
+readonly source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=${source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE%/*}
 #_ source guard end _#
 
 set -eEu -o pipefail -o functrace
@@ -41,12 +41,13 @@ trap_error_info::get_stack_trace() {
   local indentation="${1:-}" hide_level="${2:-0}"
   local func_stack_size="${#FUNCNAME[@]}"
 
-  TRAP_ERROR_INFO_STACK_TRACE=''
+  TRAP_ERROR_INFO_STACK_TRACE=
 
   local i stack_trace=
   for ((i = hide_level + 1; i < func_stack_size; i++)); do
     [ -n "${stack_trace:-}" ] && printf -v stack_trace '%s\n' "$stack_trace"
-    printf -v stack_trace '%s%s%s(%s:%s)' "$stack_trace" "$indentation" "${FUNCNAME[i]}" "${BASH_SOURCE[i]}" "${BASH_LINENO[i - 1]}"
+    printf -v stack_trace '%s%s%s(%s:%s)' "$stack_trace" \
+      "$indentation" "${FUNCNAME[i]}" "${BASH_SOURCE[i]}" "${BASH_LINENO[i - 1]}"
   done
 
   TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"
@@ -74,22 +75,20 @@ trap_error_info::get_stack_trace() {
 trap_error_info::_show_trapped_error_info() {
   local exit_code="$1" error_command_line="$2"
 
-  {
-    echo '================================================================================'
-    echo "Trapped error!"
-    echo
-    echo "Exit status code: $exit_code"
+  echo '================================================================================'
+  echo "Trapped error!"
+  echo
+  echo "Exit status code: $exit_code"
 
-    echo "Stack trace:"
-    # set hide level 1, hide `trap_error_info::_show_trapped_error_info` self stack trace
-    trap_error_info::get_stack_trace "  " 1
-    echo "$TRAP_ERROR_INFO_STACK_TRACE"
+  echo "Stack trace:"
+  # set hide level 1, hide `trap_error_info::_show_trapped_error_info` self stack trace
+  trap_error_info::get_stack_trace '  ' 1
+  echo "$TRAP_ERROR_INFO_STACK_TRACE"
 
-    echo "Error code line:"
-    echo "  $error_command_line"
-    echo '================================================================================'
-  } >&2
-}
+  echo "Error code line:"
+  echo "  $error_command_line"
+  echo '================================================================================'
+} >&2
 
 trap_error_info::register_show_error_info_handler() {
   trap 'trap_error_info::_show_trapped_error_info $? "$BASH_COMMAND"' ERR

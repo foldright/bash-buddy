@@ -11,16 +11,16 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -n "${__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA:+has_value}" ] && return
-__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_ED79675F_4289_4394_A843_03D06DB48AFA:+has_value}" ] && return
+source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=${__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA%/*}
+readonly source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=${source_guard_ED79675F_4289_4394_A843_03D06DB48AFA%/*}
 #_ source guard end _#
 
 set -eEuo pipefail
 
 # shellcheck source=common_utils.sh
-source "$__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA/common_utils.sh"
+source "$source_guard_ED79675F_4289_4394_A843_03D06DB48AFA/common_utils.sh"
 
 #################################################################################
 # java info functions
@@ -92,11 +92,11 @@ jvu::switch_to_jdk() {
     local jdk_home_var_name="JAVA${switch_target}_HOME"
     # check env var JAVAx_HOME is defined or not
     if [ -z "${!jdk_home_var_name+defined}" ]; then
-      cu::die "use \$$jdk_home_var_name as java home for switch target($switch_target), but \$$jdk_home_var_name is NOT defined!" >&2
+      cu::die "use \$$jdk_home_var_name as java home for switch target($switch_target), but \$$jdk_home_var_name is NOT defined!"
     fi
     local jdk_home="${!jdk_home_var_name:-}"
     if ! jvu::_validate_java_home "$jdk_home"; then
-      cu::die "use \$$jdk_home_var_name($jdk_home) as java home for switch target($switch_target), but $_JVU_VALIDATE_JAVA_HOME_ERR_MSG!" >&2
+      cu::die "use \$$jdk_home_var_name($jdk_home) as java home for switch target($switch_target), but $_JVU_VALIDATE_JAVA_HOME_ERR_MSG!"
     fi
 
     export JAVA_HOME="$jdk_home"

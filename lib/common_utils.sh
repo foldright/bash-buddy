@@ -28,10 +28,10 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -n "${__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA:+has_value}" ] && return
-__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA:+has_value}" ] && return
+source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA=${__source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA%/*}
+readonly source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA=${source_guard_B016CBE5_CBB5_4AF4_BE46_ECA9FD30BACA%/*}
 #_ source guard end _#
 
 set -eEuo pipefail

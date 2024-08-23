@@ -15,17 +15,17 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -n "${__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465:+has_value}" ] && return
-__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465:+has_value}" ] && return
+source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465=${__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465%/*}
+readonly source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465=${source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465%/*}
 #_ source guard end _#
 
 set -eEuo pipefail
 
 # shellcheck source=common_utils.sh
-source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
-source "$__source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/java_utils.sh"
+source "$source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/common_utils.sh"
+source "$source_guard_E2AA8C4F_215B_4CDA_9816_429C7A2CD465/java_utils.sh"
 
 # install sdkman.
 #

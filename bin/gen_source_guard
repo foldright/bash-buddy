@@ -17,7 +17,7 @@ new_source_guard_var_name() {
   uuid=$(p_uuid_gen)
   uuid=${uuid//-/_}
 
-  echo "__source_guard_$uuid"
+  echo "source_guard_$uuid"
 }
 
 new_source_guard() {

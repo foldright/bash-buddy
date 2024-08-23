@@ -118,9 +118,9 @@ Example:
 ```sh
 $ gen_source_guard
 #_ source guard begin _#
-[ -n "${__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828:+has_value}" ] && return
-__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828=$(realpath -- "${BASH_SOURCE[0]}")
+[ -n "${source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828:+has_value}" ] && return
+source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828=$(realpath -- "${BASH_SOURCE[0]}")
 # the value of source guard is the canonical dir path of this script
-readonly __source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828=${__source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828%/*}
+readonly source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828=${source_guard_0EDD6400_96EC_43E4_871A_E65F6781B828%/*}
 #_ source guard end _#
 ```
