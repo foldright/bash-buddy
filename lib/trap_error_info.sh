@@ -23,36 +23,6 @@ readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=${__source_guard_84
 
 set -eEu -o pipefail -o functrace
 
-# trap_error_info::get_caller_line_no $level
-#
-# level 0 is caller of `trap_error_info::get_caller_line_no`.
-#
-# CAUTION: do NOT call this function in sub-shell!
-# e.g. $(trap_error_info::get_caller_line_no)
-#
-#
-# related info:
-#
-# What is the "caller" command?
-#   https://unix.stackexchange.com/questions/19323
-# Bash - Caller - Stack Trace (Builtin command)
-#   https://datacadamia.com/lang/bash/caller
-# Get the name of the caller script in bash script
-#   https://stackoverflow.com/questions/20572934
-#
-trap_error_info::get_caller_line_no() {
-  local level="$1"
-
-  TRAP_ERROR_INFO_CALLER_LINE_NO=''
-
-  # level 0 of caller means this `trap_error_info::get_caller_line_no` self
-  # set level 1 to skip `trap_error_info::get_caller_line_no` self
-  local line_no _
-  read -r line_no _ < <(caller $((level + 1)))
-
-  TRAP_ERROR_INFO_CALLER_LINE_NO="$line_no"
-}
-
 # show stack trace.
 #
 # usage:
@@ -67,20 +37,16 @@ trap_error_info::get_caller_line_no() {
 # example:
 #   foo_function(bar.sh:42)
 #
-# CAUTION: do NOT call this function in sub-shell!
-# e.g. $(trap_error_info::get_stack_trace)
-#
 trap_error_info::get_stack_trace() {
   local indentation="${1:-}" hide_level="${2:-0}"
   local func_stack_size="${#FUNCNAME[@]}"
 
   TRAP_ERROR_INFO_STACK_TRACE=''
 
-  local i stack_trace nl=$'\n'
+  local i stack_trace=
   for ((i = hide_level + 1; i < func_stack_size; i++)); do
-    trap_error_info::get_caller_line_no "$((i - 1))"
-
-    stack_trace="${stack_trace:+$stack_trace$nl}${indentation}${FUNCNAME[i]}(${BASH_SOURCE[i]}:${TRAP_ERROR_INFO_CALLER_LINE_NO})"
+    [ -n "${stack_trace:-}" ] && printf -v stack_trace '%s\n' "$stack_trace"
+    printf -v stack_trace '%s%s%s(%s:%s)' "$stack_trace" "$indentation" "${FUNCNAME[i]}" "${BASH_SOURCE[i]}" "${BASH_LINENO[i - 1]}"
   done
 
   TRAP_ERROR_INFO_STACK_TRACE="$stack_trace"

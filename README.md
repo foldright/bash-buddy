@@ -9,7 +9,7 @@
 <a href="https://github.com/foldright/bash-buddy"><img src="https://img.shields.io/github/repo-size/foldright/bash-buddy" alt="GitHub repo size"></a>
 </p>
 
-🚼 Bash Buddy(aka. BaBy) contains `bash` libs and tools that extracted from `CI` scripts of my projects.
+🚼 Bash Buddy(aka. BaBy) contains `bash` libs and tools that extracted from `CI` scripts of my open-source projects.
 
 -----------------------------------
 
