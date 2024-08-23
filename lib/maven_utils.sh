@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# java and maven util functions for build.
+# maven util functions for build.
 #
 ################################################################################
 # api functions:
@@ -77,10 +77,8 @@ mvu::_find_mvn_cmd_path() {
 mvu::mvn_cmd() {
   (($# > 0)) || cu::die "${FUNCNAME[0]} requires arguments! But no provided"
 
-  # FIXME hard code logic for `DISABLE_GIT_DIRTY_CHECK`
   cu::log_then_run "$(mvu::_find_mvn_cmd_path)" \
     "${MVU_MVN_OPTS[@]}" \
-    ${DISABLE_GIT_DIRTY_CHECK+-Dgit.dirty=false} \
     "$@"
 }
 

@@ -114,12 +114,10 @@ jvu::switch_to_jdk() {
   export JAVA_HOME="$jdk_home"
 }
 
-# FIXME hard code memery settings
-# shellcheck disable=SC2034
 readonly JVU_DEFAULT_JAVA_OPTS=(
-  -Xmx256m -Xms256m
-  -server -ea
+  -ea
   -Duser.language=en -Duser.country=US
+  -Dfile.encoding=UTF-8
 )
 
 readonly JVU_JAVA_OPT_DEFAULT_DEBUG_PORT=5050
