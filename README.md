@@ -3,8 +3,8 @@
 <p align="center">
 <a href="https://www.apache.org/licenses/LICENSE-2.0.html"><img src="https://img.shields.io/github/license/foldright/bash-buddy?color=4D7A97&logo=apache" alt="License"></a>
 <a href="https://github.com/foldright/bash-buddy/releases"><img src="https://img.shields.io/github/release/foldright/bash-buddy.svg" alt="GitHub release"></a>
-<a href="https://github.com/foldright/bash-buddy/stargazers"><img src="https://img.shields.io/github/stars/foldright/bash-buddy" alt="GitHub Stars"></a>
-<a href="https://github.com/foldright/bash-buddy/fork"><img src="https://img.shields.io/github/forks/foldright/bash-buddy" alt="GitHub Forks"></a>
+<a href="https://github.com/foldright/bash-buddy/stargazers"><img src="https://img.shields.io/github/stars/foldright/bash-buddy?style=flat" alt="GitHub Stars"></a>
+<a href="https://github.com/foldright/bash-buddy/fork"><img src="https://img.shields.io/github/forks/foldright/bash-buddy?style=flat" alt="GitHub Forks"></a>
 <a href="https://github.com/foldright/bash-buddy/issues"><img src="https://img.shields.io/github/issues/foldright/bash-buddy" alt="GitHub issues"></a>
 <a href="https://github.com/foldright/bash-buddy"><img src="https://img.shields.io/github/repo-size/foldright/bash-buddy" alt="GitHub repo size"></a>
 </p>
