@@ -9,9 +9,10 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -z "${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F:+has_value}" ] || return 0
-__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-readonly __source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F
+[ -n "${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F:+has_value}" ] && return
+__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=$(realpath -- "${BASH_SOURCE[0]}")
+# the value of source guard is the canonical dir path of this script
+readonly __source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F=${__source_guard_364DF1B5_9CA2_44D3_9C62_CDF6C2ECB24F%/*}
 #_ source guard end _#
 
 set -eEuo pipefail
@@ -43,7 +44,8 @@ mvu::_find_mvn_cmd_path() {
   fi
 
   # 2. find mvnw from parent dirs
-  local d="$PWD"
+  local d
+  d=$(realpath -- "$PWD")
   while true; do
     local mvnw_path="$d/$maven_wrapper_name"
     [ -x "$mvnw_path" ] && {
@@ -53,7 +55,7 @@ mvu::_find_mvn_cmd_path() {
     }
 
     [ "/" = "$d" ] && break
-    d=$(dirname "$d")
+    d=${d%/*}
   done
 
   # 3. find mvn from $PATH

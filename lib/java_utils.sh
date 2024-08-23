@@ -11,9 +11,10 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -z "${__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA:+has_value}" ] || return 0
-__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-readonly __source_guard_ED79675F_4289_4394_A843_03D06DB48AFA
+[ -n "${__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA:+has_value}" ] && return
+__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=$(realpath -- "${BASH_SOURCE[0]}")
+# the value of source guard is the canonical dir path of this script
+readonly __source_guard_ED79675F_4289_4394_A843_03D06DB48AFA=${__source_guard_ED79675F_4289_4394_A843_03D06DB48AFA%/*}
 #_ source guard end _#
 
 set -eEuo pipefail

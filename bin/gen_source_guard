@@ -26,9 +26,10 @@ new_source_guard() {
 
   cat <<EOF
 #_ source guard begin _#
-[ -z "\${$source_guard_var_name:+has_value}" ] || return 0
-$source_guard_var_name="\$(dirname "\$(readlink -f "\${BASH_SOURCE[0]}")")"
-readonly $source_guard_var_name
+[ -n "\${$source_guard_var_name:+has_value}" ] && return
+$source_guard_var_name=\$(realpath -- "\${BASH_SOURCE[0]}")
+# the value of source guard is the canonical dir path of this script
+readonly $source_guard_var_name=\${$source_guard_var_name%/*}
 #_ source guard end _#
 EOF
 }

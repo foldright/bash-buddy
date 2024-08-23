@@ -1,8 +1,11 @@
 #!/bin/bash
 set -eEuo pipefail
-cd "$(dirname "$(readlink -f "$0")")"
+# the canonical path of this script
+SELF_PATH=$(realpath -- "$0")
+readonly SELF_PATH SELF_DIR=${SELF_PATH%/*}
+cd "$SELF_DIR"
 
-FIXME BASH_BUDDY_ROOT="$(readlink -f path/to/bash-buddy/dir)"
+FIXME BASH_BUDDY_ROOT="$(realpath -- path/to/bash-buddy/dir)"
 readonly BASH_BUDDY_ROOT
 
 source "$BASH_BUDDY_ROOT/lib/trap_error_info.sh"
@@ -28,7 +31,7 @@ source "$BASH_BUDDY_ROOT/lib/maven_utils.sh"
 # ci build logic
 ################################################################################
 
-FIXME PROJECT_ROOT_DIR="$(readlink -f /path/to/project/root/dir)"
+FIXME PROJECT_ROOT_DIR="$(realpath -- /path/to/project/root/dir)"
 cd "$PROJECT_ROOT_DIR"
 
 ########################################

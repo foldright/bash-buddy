@@ -15,9 +15,10 @@
 ################################################################################
 #
 #_ source guard begin _#
-[ -z "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] || return 0
-__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE
+[ -n "${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE:+has_value}" ] && return
+__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=$(realpath -- "${BASH_SOURCE[0]}")
+# the value of source guard is the canonical dir path of this script
+readonly __source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE=${__source_guard_84949D19_1C7A_40AF_BC28_BA5967A0B6CE%/*}
 #_ source guard end _#
 
 set -eEu -o pipefail -o functrace
